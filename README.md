@@ -19,16 +19,16 @@ LaunchCode FlexPath | Full-Stack Java + React + MySQL
 - Secure login with role-based access
 - Fully responsive user interface
 ----------------------------------------------------------------------------
-**🚀 Run Locally
+🚀 Run Locally
 # Backend
 cd backend
-mvn spring-boot:run**
+mvn spring-boot:run
 
-**# Frontend
+# Frontend
 cd frontend
 npm install
 npm run dev
-**
+
 Visit http://localhost:3000
 ---------------------------------------------------------------------------
 🧪 Testing
