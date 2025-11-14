@@ -4,6 +4,9 @@ import com.example.tracker.models.Item;
 import com.example.tracker.repositories.ItemRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -60,4 +63,11 @@ public class ItemController {
 
         return query.getResultList();
     }
+   
+    @PostMapping
+public ResponseEntity<Item> createItem(@RequestBody Item item) {
+    Item saved = items.save(item);
+    return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+}
+
 }

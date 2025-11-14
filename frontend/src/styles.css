@@ -471,3 +471,67 @@ footer a:hover {
     width: 90%;
   }
 }
+
+/* === Shared filter panel (Collections + Case Database) === */
+.filter-panel {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  background: #111;                 /* dark panel */
+  border: 1px solid rgba(255, 60, 60, 0.35);
+  box-shadow: 0 0 0 2px rgba(255, 60, 60, 0.15) inset;
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+
+.filter-panel input[type="text"],
+.filter-panel select {
+  background: #1a1a1a;
+  color: #eee;
+  border: 1px solid #2f2f2f;
+  border-radius: 8px;
+  padding: 8px 12px;
+  min-width: 210px;
+  outline: none;
+}
+
+.filter-panel input[type="text"]::placeholder {
+  color: #9a9a9a;
+}
+
+.filter-panel input[type="text"]:focus,
+.filter-panel select:focus {
+  border-color: #ff4d4d;
+  box-shadow: 0 0 0 3px rgba(255, 77, 77, 0.25);
+}
+
+.btn-apply {
+  background: #e74a4a;
+  color: #fff;
+  border: 1px solid #e74a4a;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-weight: 600;
+}
+
+.btn-apply:hover {
+  filter: brightness(1.05);
+}
+
+.page-title {
+  text-align: center;
+  color: #ff4d4d;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.page-title-underline {
+  width: 120px;
+  height: 2px;
+  background: #ff4d4d;
+  margin: 8px auto 18px;
+  border-radius: 2px;
+}

@@ -29,42 +29,93 @@ public class GroupService {
         this.auth = auth;
     }
 
+public GroupDao get(Long id) {
+    var group = groups.findById(id).orElseThrow();
 
-    public GroupDao get(Long id) {
-        return groups.findById(id)
-                .map(Mappers::toGroupDao)
-                .orElseThrow();
+    // Current logged-in user
+    String current = auth.currentUsername();
+    var user = users.findByUsername(current).orElseThrow();
+    boolean isAdmin = user.getRole() == Role.ROLE_ADMIN;
+
+    // If ADMIN → always allowed
+    if (isAdmin) {
+        return Mappers.toGroupDao(group);
     }
+
+    // If USER → allow ONLY:
+    // 1. PUBLIC groups
+    // 2. Groups they own
+    if (group.getVisibility() == Visibility.PUBLIC || 
+        group.getOwner().getId().equals(user.getId())) {
+
+        return Mappers.toGroupDao(group);
+    }
+
+    // Otherwise block
+    throw new RuntimeException("Access denied: This collection is private.");
+}
+
 
     public GroupDao update(Long id, GroupDao dto) {
         var g = groups.findById(id).orElseThrow();
-        g.setName(dto.name());
-        g.setDescription(dto.description());
-        g.setVisibility(dto.visibility());
-        g.setImageUrl(dto.imageUrl());
-        return Mappers.toGroupDao(groups.save(g));
+
+        // Update each field if provided
+        if (dto.name() != null && !dto.name().isBlank()) g.setName(dto.name());
+        if (dto.description() != null) g.setDescription(dto.description());
+        if (dto.visibility() != null) g.setVisibility(dto.visibility());
+        if (dto.imageUrl() != null) g.setImageUrl(dto.imageUrl());
+
+        // Ensure immediate persistence for test consistency
+        var saved = groups.saveAndFlush(g);
+
+        return Mappers.toGroupDao(saved);
     }
 
     public void delete(Long id) {
         groups.deleteById(id);
     }
 
-    public Page<GroupDao> search(String q, Long ownerId, Visibility visibility, Pageable pageable) {
-        Specification<CaseGroups> spec = (root, query, cb) -> cb.conjunction();
+public Page<GroupDao> search(String q, Long ownerId, Visibility visibility, Pageable pageable) {
 
-        if (q != null && !q.isBlank()) {
-            spec = spec.and((root, query, cb) ->
-                    cb.like(cb.lower(root.get("name")), "%" + q.toLowerCase() + "%"));
-        }
-        if (ownerId != null) {
-            spec = spec.and((root, query, cb) -> cb.equal(root.get("owner").get("id"), ownerId));
-        }
-        if (visibility != null) {
-            spec = spec.and((root, query, cb) -> cb.equal(root.get("visibility"), visibility));
-        }
+    // Start with a base spec
+    Specification<CaseGroups> spec = (root, query, cb) -> cb.conjunction();
 
-        return groups.findAll(spec, pageable).map(Mappers::toGroupDao);
+    // === Keyword filtering ===
+    if (q != null && !q.isBlank()) {
+        spec = spec.and((root, query, cb) ->
+                cb.like(cb.lower(root.get("name")), "%" + q.toLowerCase() + "%"));
     }
+
+    // === Owner filtering (if explicitly requested) ===
+    if (ownerId != null) {
+        spec = spec.and((root, query, cb) -> cb.equal(root.get("owner").get("id"), ownerId));
+    }
+
+    // === Explicit visibility filter (if passed from API) ===
+    if (visibility != null) {
+        spec = spec.and((root, query, cb) -> cb.equal(root.get("visibility"), visibility));
+    }
+
+    // === ROLE-BASED VISIBILITY FILTERING (main fix) ===
+    String currentUser = auth.currentUsername();
+    var user = users.findByUsername(currentUser).orElseThrow();
+    boolean isAdmin = user.getRole() == Role.ROLE_ADMIN;
+
+    if (!isAdmin) {
+        // Users can only see:
+        // 1. PUBLIC groups
+        // 2. Their own PRIVATE groups
+        spec = spec.and((root, query, cb) ->
+                cb.or(
+                        cb.equal(root.get("visibility"), Visibility.PUBLIC),
+                        cb.equal(root.get("owner").get("id"), user.getId())
+                )
+        );
+    }
+    // Admin sees EVERYTHING, no restriction added.
+
+    return groups.findAll(spec, pageable).map(Mappers::toGroupDao);
+}
 
     public List<Item> getItemsByGroupId(Long groupId) {
         return groupItems.findItemsByGroupId(groupId);
@@ -79,22 +130,20 @@ public class GroupService {
     }
 
     public GroupDao create(GroupDao dto) {
-    var username = auth.currentUsername();
+        var username = auth.currentUsername();
 
+        var owner = users.findByUsername(username).orElseGet(() -> {
+            return users.findAll().stream().findFirst().orElseThrow();
+        });
 
-    var owner = users.findByUsername(username).orElseGet(() -> {
-        return users.findAll().stream().findFirst().orElseThrow();
-    });
+        CaseGroups g = CaseGroups.builder()
+                .owner(owner)
+                .name(dto.name())
+                .description(dto.description())
+                .visibility(dto.visibility() == null ? Visibility.PRIVATE : dto.visibility())
+                .imageUrl(dto.imageUrl())
+                .build();
 
-    CaseGroups g = CaseGroups.builder()
-            .owner(owner)
-            .name(dto.name())
-            .description(dto.description())
-            .visibility(dto.visibility() == null ? Visibility.PRIVATE : dto.visibility())
-            .imageUrl(dto.imageUrl())
-            .build();
-
-    return Mappers.toGroupDao(groups.save(g));
-}
-
+        return Mappers.toGroupDao(groups.save(g));
+    }
 }

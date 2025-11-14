@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import { useUserRole } from "../UserRoleContext";
 
+// tiny helper so we can tolerate different field names
 function pick(obj, keys, fallback = "—") {
   for (const k of keys) {
     if (obj && obj[k] !== undefined && obj[k] !== null && obj[k] !== "") return obj[k];
@@ -10,6 +12,8 @@ function pick(obj, keys, fallback = "—") {
 
 export default function CollectionDetailPage() {
   const { id } = useParams();
+  const { role } = useUserRole();        // 👈 NEW: know if we're ADMIN or USER
+
   const [group, setGroup] = useState(null);
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -45,6 +49,25 @@ export default function CollectionDetailPage() {
   if (error)   return <p className="text-center text-danger mt-5">{error}</p>;
   if (!group)  return <p className="text-center mt-5">Collection not found.</p>;
 
+  // 🔐 FRONTEND ACCESS CHECK:
+  // If this collection is PRIVATE and the viewer is not ADMIN,
+  // show an "Access denied" message instead of the table.
+  if (role !== "ADMIN" && group.visibility === "PRIVATE") {
+    return (
+      <div className="my-cases-page" style={{ maxWidth: 800, margin: "0 auto" }}>
+        <h1 className="page-title" style={{ marginTop: 0 }}>Private Collection</h1>
+        <p className="text-center text-secondary">
+          This collection is private and can only be viewed by its owner or an admin.
+        </p>
+        <div style={{ textAlign: "center", marginTop: "1.25rem" }}>
+          <Link to="/collections" className="btn btn-outline-dark">
+            ← Back to Collections
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="my-cases-page" style={{ maxWidth: 1100, margin: "0 auto" }}>
       <h1 className="page-title" style={{ marginTop: 0 }}>{group.name}</h1>
@@ -77,9 +100,8 @@ export default function CollectionDetailPage() {
                 ? `${locationCity}, ${locationState}`
                 : locationCity || locationState || "—";
             const year      = pick(item, ["year", "caseYear"]);
-            const statusRaw = pick(item, ["status"], "UNKNOWN") + "";
-            const status    = statusRaw.trim().toLowerCase();
-
+            const statusRaw = (pick(item, ["status"], "UNKNOWN") + "").trim();
+            const status    = statusRaw.toLowerCase();
 
             const wikiUrl =
               item.source_url ||
@@ -117,7 +139,6 @@ export default function CollectionDetailPage() {
         </div>
       )}
 
-      {/* Back link */}
       <div style={{ textAlign: "center", marginTop: "1.25rem" }}>
         <Link to="/collections" className="btn btn-outline-dark">
           ← Back to Collections

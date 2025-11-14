@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
+import { useUserRole } from "../UserRoleContext";
 
 export default function CaseDatabase() {
+  const { role } = useUserRole(); // "ADMIN" or "USER"
+
   const [cases, setCases] = useState([]);
   const [collections, setCollections] = useState([]);
   const [selectedGroup, setSelectedGroup] = useState("");
@@ -15,11 +18,16 @@ export default function CaseDatabase() {
     return saved ? JSON.parse(saved) : [];
   });
 
+  // -----------------------
+  // FETCH ALL CASES (backend returns everything)
+  // -----------------------
   const fetchCases = async () => {
     try {
       setLoading(true);
+
       const res = await fetch("http://localhost:8080/api/items");
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
       const data = await res.json();
       setCases(Array.isArray(data) ? data : data.content || []);
     } catch (e) {
@@ -30,8 +38,13 @@ export default function CaseDatabase() {
     }
   };
 
-  useEffect(() => { fetchCases(); }, []);
+  useEffect(() => {
+    fetchCases();
+  }, []); // load once
 
+  // -----------------------
+  // FETCH COLLECTIONS
+  // -----------------------
   useEffect(() => {
     (async () => {
       try {
@@ -45,6 +58,9 @@ export default function CaseDatabase() {
     })();
   }, []);
 
+  // -----------------------
+  // FAVORITES (My Cases)
+  // -----------------------
   const addToMyCases = (caseItem) => {
     const updated = [...favorites, caseItem].filter(
       (v, i, a) => a.findIndex((t) => t.id === v.id) === i
@@ -54,13 +70,19 @@ export default function CaseDatabase() {
     alert(`${caseItem.title} added to My Cases!`);
   };
 
+  // -----------------------
+  // ADD TO COLLECTION (ADMIN ONLY)
+  // -----------------------
   const addToCollection = async (caseItem) => {
+    if (role !== "ADMIN") return alert("Only admins can add to collections.");
     if (!selectedGroup) return alert("Please select a collection first!");
+
     try {
       const res = await fetch(
         `http://localhost:8080/api/groups/${selectedGroup}/items/${caseItem.id}`,
         { method: "POST", headers: { "Content-Type": "application/json" } }
       );
+
       if (res.ok) alert(`${caseItem.title} added to collection!`);
       else alert(`Failed to add: ${res.statusText}`);
     } catch (e) {
@@ -69,6 +91,9 @@ export default function CaseDatabase() {
     }
   };
 
+  // -----------------------
+  // SEARCH (still uses backend /search, but we ALSO filter by visibility on frontend)
+  // -----------------------
   const handleSearch = async () => {
     try {
       setLoading(true);
@@ -78,7 +103,11 @@ export default function CaseDatabase() {
         sortBy: sortField,
         order: sortOrder,
       });
-      const res = await fetch(`http://localhost:8080/api/items/search?${params}`);
+
+      const res = await fetch(
+        `http://localhost:8080/api/items/search?${params.toString()}`
+      );
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       setCases(Array.isArray(data) ? data : data.content || []);
     } catch (e) {
@@ -89,6 +118,20 @@ export default function CaseDatabase() {
     }
   };
 
+  // -----------------------
+  // ROLE-BASED VISIBILITY FILTER (THIS is the important part)
+  // -----------------------
+  const visibleCases =
+    role === "ADMIN"
+      ? cases
+      : cases.filter(
+          (item) =>
+            !item.visibility || item.visibility.toUpperCase() === "PUBLIC"
+        );
+
+  // -----------------------
+  // RENDER
+  // -----------------------
   if (loading) return <p className="text-center mt-5">Loading case database...</p>;
   if (error) return <p className="text-center text-danger mt-5">{error}</p>;
 
@@ -133,26 +176,28 @@ export default function CaseDatabase() {
         </button>
       </div>
 
-      {/* Collection selector */}
-      <div style={{ marginBottom: "1rem", textAlign: "center" }}>
-        <label htmlFor="collectionSelect" style={{ marginRight: "8px" }}>
-          Add to Collection:
-        </label>
-        <select
-          id="collectionSelect"
-          value={selectedGroup}
-          onChange={(e) => setSelectedGroup(e.target.value)}
-        >
-          <option value="">-- Select a collection --</option>
-          {collections.map((col) => (
-            <option key={col.id} value={col.id}>
-              {col.name}
-            </option>
-          ))}
-        </select>
-      </div>
+      {/* Collection selector — only meaningful for ADMIN when adding to collections */}
+      {role === "ADMIN" && (
+        <div style={{ marginBottom: "1rem", textAlign: "center" }}>
+          <label htmlFor="collectionSelect" style={{ marginRight: "8px" }}>
+            Add to Collection:
+          </label>
+          <select
+            id="collectionSelect"
+            value={selectedGroup}
+            onChange={(e) => setSelectedGroup(e.target.value)}
+          >
+            <option value="">-- Select a collection --</option>
+            {collections.map((col) => (
+              <option key={col.id} value={col.id}>
+                {col.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
-      {cases.length === 0 ? (
+      {visibleCases.length === 0 ? (
         <p className="text-center text-secondary">No cases found.</p>
       ) : (
         <div className="my-cases-list">
@@ -164,14 +209,17 @@ export default function CaseDatabase() {
             <div>Status</div>
           </div>
 
-          {cases.map((item) => {
-            const location =
+          {visibleCases.map((item) => {
+            const loc =
               item.locationCity && item.locationState
                 ? `${item.locationCity}, ${item.locationState}`
                 : item.locationCity || item.locationState || "—";
+
             const wikiUrl = item.wikiUrl
               ? item.wikiUrl
-              : `https://en.wikipedia.org/wiki/Special:Search?search=${encodeURIComponent(item.title)}`;
+              : `https://en.wikipedia.org/wiki/Special:Search?search=${encodeURIComponent(
+                  item.title
+                )}`;
 
             return (
               <div key={item.id} className="my-case-row">
@@ -187,7 +235,7 @@ export default function CaseDatabase() {
                   </a>
                 </div>
                 <div>{item.victimName || "—"}</div>
-                <div>{location}</div>
+                <div>{loc}</div>
                 <div>{item.year || "—"}</div>
                 <div>
                   <span
@@ -196,19 +244,25 @@ export default function CaseDatabase() {
                     {(item.status || "UNKNOWN").toUpperCase()}
                   </span>
                 </div>
+
                 <div style={{ display: "flex", gap: "0.5rem" }}>
+                  {/* Everyone can favorite */}
                   <button
                     className="btn btn-sm btn-outline-light"
                     onClick={() => addToMyCases(item)}
                   >
                     + My Cases
                   </button>
-                  <button
-                    className="btn btn-sm btn-outline-danger"
-                    onClick={() => addToCollection(item)}
-                  >
-                    + Add to Collection
-                  </button>
+
+                  {/* Only ADMIN can add to collections */}
+                  {role === "ADMIN" && (
+                    <button
+                      className="btn btn-sm btn-outline-danger"
+                      onClick={() => addToCollection(item)}
+                    >
+                      + Add to Collection
+                    </button>
+                  )}
                 </div>
               </div>
             );

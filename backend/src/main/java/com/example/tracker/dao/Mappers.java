@@ -20,6 +20,7 @@ public class Mappers {
     }
 
     public static GroupDao toGroupDao(CaseGroups g) {
+        if (g == null) return null;
         return new GroupDao(
             g.getId(),
             g.getName(),

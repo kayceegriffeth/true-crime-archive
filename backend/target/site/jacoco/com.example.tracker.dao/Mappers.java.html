@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Mappers.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">true-crime-tracker</a> &gt; <a href="index.source.html" class="el_package">com.example.tracker.dao</a> &gt; <span class="el_source">Mappers.java</span></div><h1>Mappers.java</h1><pre class="source lang-java linenums">package com.example.tracker.dao;
+
+import com.example.tracker.models.*;
+
+<span class="nc" id="L5">public class Mappers {</span>
+
+    public static ItemDao toDto(Item i) {
+<span class="fc" id="L8">        return new ItemDao(</span>
+<span class="fc" id="L9">            i.getId(),</span>
+<span class="fc" id="L10">            i.getTitle(),</span>
+<span class="fc" id="L11">            i.getDescription(),</span>
+<span class="fc" id="L12">            i.getVictimName(),</span>
+<span class="fc" id="L13">            i.getLocationCity(),</span>
+<span class="fc" id="L14">            i.getLocationState(),</span>
+<span class="fc" id="L15">            i.getStatus(),</span>
+<span class="fc" id="L16">            i.getVisibility(),</span>
+<span class="fc" id="L17">            i.getYear(),</span>
+<span class="pc bpc" id="L18" title="1 of 2 branches missed.">            i.getOwner() != null ? i.getOwner().getId() : null</span>
+        );
+    }
+
+    public static GroupDao toGroupDao(CaseGroups g) {
+<span class="pc bpc" id="L23" title="1 of 2 branches missed.">        if (g == null) return null;</span>
+<span class="fc" id="L24">        return new GroupDao(</span>
+<span class="fc" id="L25">            g.getId(),</span>
+<span class="fc" id="L26">            g.getName(),</span>
+<span class="fc" id="L27">            g.getDescription(),</span>
+<span class="fc" id="L28">            g.getVisibility(),</span>
+<span class="pc bpc" id="L29" title="1 of 2 branches missed.">            g.getOwner() == null ? null : g.getOwner().getId(),</span>
+<span class="fc" id="L30">            g.getImageUrl()</span>
+        );
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

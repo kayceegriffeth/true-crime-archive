@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ItemController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">true-crime-tracker</a> &gt; <a href="index.source.html" class="el_package">com.example.tracker.controllers</a> &gt; <span class="el_source">ItemController.java</span></div><h1>ItemController.java</h1><pre class="source lang-java linenums">package com.example.tracker.controllers;
+
+import com.example.tracker.models.Item;
+import com.example.tracker.repositories.ItemRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping(&quot;/api/items&quot;)
+@CrossOrigin(origins = {&quot;http://localhost:3000&quot;, &quot;http://localhost:5173&quot;})
+public class ItemController {
+
+    private final ItemRepository items;
+
+    @PersistenceContext
+    private EntityManager em;
+
+<span class="fc" id="L24">    public ItemController(ItemRepository items) {</span>
+<span class="fc" id="L25">        this.items = items;</span>
+<span class="fc" id="L26">    }</span>
+
+    @GetMapping
+    public List&lt;Item&gt; getAllItems() {
+<span class="fc" id="L30">        return items.findAll();</span>
+    }
+
+    @GetMapping(&quot;/{id}&quot;)
+    public Item getItemById(@PathVariable Long id) {
+<span class="nc" id="L35">        return items.findById(id)</span>
+<span class="nc" id="L36">                .orElseThrow(() -&gt; new RuntimeException(&quot;Case not found with ID: &quot; + id));</span>
+    }
+
+    @GetMapping(&quot;/search&quot;)
+    public List&lt;Item&gt; searchItems(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String location,
+            @RequestParam(defaultValue = &quot;title&quot;) String sortBy,
+            @RequestParam(defaultValue = &quot;asc&quot;) String order
+    ) {
+<span class="fc" id="L46">        String jpql = &quot;SELECT i FROM Item i WHERE 1=1&quot;;</span>
+
+<span class="pc bpc" id="L48" title="2 of 4 branches missed.">        if (keyword != null &amp;&amp; !keyword.isEmpty()) {</span>
+<span class="fc" id="L49">            jpql += &quot; AND (LOWER(i.title) LIKE LOWER(CONCAT('%', :keyword, '%')) &quot; +</span>
+                    &quot;OR LOWER(i.victimName) LIKE LOWER(CONCAT('%', :keyword, '%')))&quot;;
+        }
+
+<span class="pc bpc" id="L53" title="3 of 4 branches missed.">        if (location != null &amp;&amp; !location.isEmpty()) {</span>
+<span class="nc" id="L54">            jpql += &quot; AND (LOWER(i.locationCity) LIKE LOWER(CONCAT('%', :location, '%')) &quot; +</span>
+                    &quot;OR LOWER(i.locationState) LIKE LOWER(CONCAT('%', :location, '%')))&quot;;
+        }
+
+<span class="pc bpc" id="L58" title="1 of 2 branches missed.">        jpql += &quot; ORDER BY i.&quot; + sortBy + (&quot;desc&quot;.equalsIgnoreCase(order) ? &quot; DESC&quot; : &quot; ASC&quot;);</span>
+
+<span class="fc" id="L60">        var query = em.createQuery(jpql, Item.class);</span>
+<span class="pc bpc" id="L61" title="2 of 4 branches missed.">        if (keyword != null &amp;&amp; !keyword.isEmpty()) query.setParameter(&quot;keyword&quot;, keyword);</span>
+<span class="pc bpc" id="L62" title="3 of 4 branches missed.">        if (location != null &amp;&amp; !location.isEmpty()) query.setParameter(&quot;location&quot;, location);</span>
+
+<span class="fc" id="L64">        return query.getResultList();</span>
+    }
+   
+    @PostMapping
+public ResponseEntity&lt;Item&gt; createItem(@RequestBody Item item) {
+<span class="nc" id="L69">    Item saved = items.save(item);</span>
+<span class="nc" id="L70">    return ResponseEntity.status(HttpStatus.CREATED).body(saved);</span>
+}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

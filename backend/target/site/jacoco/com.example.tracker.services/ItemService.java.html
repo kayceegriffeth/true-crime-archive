@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ItemService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">true-crime-tracker</a> &gt; <a href="index.source.html" class="el_package">com.example.tracker.services</a> &gt; <span class="el_source">ItemService.java</span></div><h1>ItemService.java</h1><pre class="source lang-java linenums">package com.example.tracker.services;
+
+import com.example.tracker.dao.ItemDao;
+import com.example.tracker.dao.Mappers;
+import com.example.tracker.models.*;
+import com.example.tracker.repositories.*;
+import org.springframework.data.domain.*;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@Transactional
+public class ItemService {
+    private final ItemRepository items;
+    private final UserRepository users;
+    private final AuthUtil auth;
+
+<span class="fc" id="L19">    public ItemService(ItemRepository items, UserRepository users, AuthUtil auth) {</span>
+<span class="fc" id="L20">        this.items = items;</span>
+<span class="fc" id="L21">        this.users = users;</span>
+<span class="fc" id="L22">        this.auth = auth;</span>
+<span class="fc" id="L23">    }</span>
+
+    public ItemDao create(ItemDao dto) {
+<span class="fc" id="L26">        var owner = users.findByUsername(auth.currentUsername()).orElseThrow();</span>
+<span class="fc" id="L27">        Item i = Item.builder()</span>
+<span class="fc" id="L28">                .owner(owner)</span>
+<span class="fc" id="L29">                .title(dto.title())</span>
+<span class="fc" id="L30">                .description(dto.description())</span>
+<span class="fc" id="L31">                .victimName(dto.victimName())</span>
+<span class="fc" id="L32">                .locationCity(dto.locationCity())</span>
+<span class="fc" id="L33">                .locationState(dto.locationState())</span>
+<span class="pc bpc" id="L34" title="1 of 2 branches missed.">                .status(dto.status() == null ? CaseStatus.OPEN : dto.status())</span>
+<span class="pc bpc" id="L35" title="1 of 2 branches missed.">                .visibility(dto.visibility() == null ? Visibility.PRIVATE : dto.visibility())</span>
+<span class="fc" id="L36">                .year(dto.year())</span>
+<span class="fc" id="L37">                .build();</span>
+<span class="fc" id="L38">        return Mappers.toDto(items.save(i));</span>
+    }
+
+    public ItemDao get(Long id) {
+<span class="nc" id="L42">        Item i = items.findById(id).orElseThrow();</span>
+<span class="nc bnc" id="L43" title="All 2 branches missed.">        if (i.getVisibility() == Visibility.PUBLIC) return Mappers.toDto(i);</span>
+<span class="nc" id="L44">        var me = users.findByUsername(auth.currentUsername()).orElseThrow();</span>
+<span class="nc bnc" id="L45" title="All 4 branches missed.">        if (auth.isAdmin() || i.getOwner().getId().equals(me.getId())) return Mappers.toDto(i);</span>
+<span class="nc" id="L46">        throw new RuntimeException(&quot;Forbidden&quot;);</span>
+    }
+
+    public ItemDao update(Long id, ItemDao dto) {
+<span class="nc" id="L50">        Item i = items.findById(id).orElseThrow();</span>
+<span class="nc" id="L51">        var me = users.findByUsername(auth.currentUsername()).orElseThrow();</span>
+<span class="nc bnc" id="L52" title="All 4 branches missed.">        if (!auth.isAdmin() &amp;&amp; !i.getOwner().getId().equals(me.getId())) throw new RuntimeException(&quot;Forbidden&quot;);</span>
+
+<span class="nc bnc" id="L54" title="All 2 branches missed.">        if (dto.title()!=null) i.setTitle(dto.title());</span>
+<span class="nc bnc" id="L55" title="All 2 branches missed.">        if (dto.description()!=null) i.setDescription(dto.description());</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">        if (dto.victimName()!=null) i.setVictimName(dto.victimName());</span>
+<span class="nc bnc" id="L57" title="All 2 branches missed.">        if (dto.locationCity()!=null) i.setLocationCity(dto.locationCity());</span>
+<span class="nc bnc" id="L58" title="All 2 branches missed.">        if (dto.locationState()!=null) i.setLocationState(dto.locationState());</span>
+<span class="nc bnc" id="L59" title="All 2 branches missed.">        if (dto.status()!=null) i.setStatus(dto.status());</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">        if (dto.visibility()!=null) i.setVisibility(dto.visibility());</span>
+<span class="nc bnc" id="L61" title="All 2 branches missed.">        if (dto.year()!=null) i.setYear(dto.year());</span>
+
+<span class="nc" id="L63">        return Mappers.toDto(items.save(i));</span>
+    }
+
+    public void delete(Long id) {
+<span class="nc" id="L67">        Item i = items.findById(id).orElseThrow();</span>
+<span class="nc" id="L68">        var me = users.findByUsername(auth.currentUsername()).orElseThrow();</span>
+<span class="nc bnc" id="L69" title="All 4 branches missed.">        if (!auth.isAdmin() &amp;&amp; !i.getOwner().getId().equals(me.getId())) throw new RuntimeException(&quot;Forbidden&quot;);</span>
+<span class="nc" id="L70">        items.delete(i);</span>
+<span class="nc" id="L71">    }</span>
+
+    public Page&lt;ItemDao&gt; search(String q, CaseStatus status, String state, Integer year, Long ownerId,
+                                Visibility vis, Pageable pageable) {
+<span class="fc" id="L75">        Specification&lt;Item&gt; spec = ItemSpecifications.likeQ(q)</span>
+<span class="fc" id="L76">                .and(ItemSpecifications.hasStatus(status))</span>
+<span class="fc" id="L77">                .and(ItemSpecifications.hasState(state))</span>
+<span class="fc" id="L78">                .and(ItemSpecifications.hasYear(year))</span>
+<span class="fc" id="L79">                .and(ItemSpecifications.hasOwner(ownerId))</span>
+<span class="fc" id="L80">                .and(ItemSpecifications.hasVisibility(vis));</span>
+<span class="fc" id="L81">        var page = items.findAll(spec, pageable);</span>
+<span class="fc" id="L82">        return page.map(Mappers::toDto);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

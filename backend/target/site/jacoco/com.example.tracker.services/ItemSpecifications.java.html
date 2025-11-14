@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ItemSpecifications.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">true-crime-tracker</a> &gt; <a href="index.source.html" class="el_package">com.example.tracker.services</a> &gt; <span class="el_source">ItemSpecifications.java</span></div><h1>ItemSpecifications.java</h1><pre class="source lang-java linenums">package com.example.tracker.services;
+
+import com.example.tracker.models.*;
+import org.springframework.data.jpa.domain.Specification;
+
+<span class="nc" id="L6">public class ItemSpecifications {</span>
+
+    public static Specification&lt;Item&gt; likeQ(String q) {
+<span class="pc bpc" id="L9" title="2 of 4 branches missed.">        if (q == null || q.isBlank()) return Specification.where(null);</span>
+<span class="fc" id="L10">        String like = &quot;%&quot; + q.toLowerCase() + &quot;%&quot;;</span>
+<span class="pc" id="L11">        return (root, cq, cb) -&gt; cb.or(</span>
+<span class="nc" id="L12">                cb.like(cb.lower(root.get(&quot;title&quot;)), like),</span>
+<span class="nc" id="L13">                cb.like(cb.lower(root.get(&quot;description&quot;)), like),</span>
+<span class="nc" id="L14">                cb.like(cb.lower(root.get(&quot;victimName&quot;)), like)</span>
+        );
+    }
+
+    public static Specification&lt;Item&gt; hasStatus(CaseStatus s) {
+<span class="pc bpc" id="L19" title="1 of 2 branches missed.">        if (s == null) return Specification.where(null);</span>
+<span class="nc" id="L20">        return (r, cq, cb) -&gt; cb.equal(r.get(&quot;status&quot;), s);</span>
+    }
+
+    public static Specification&lt;Item&gt; hasState(String state) {
+<span class="pc bpc" id="L24" title="2 of 4 branches missed.">        if (state == null || state.isBlank()) return Specification.where(null);</span>
+<span class="pc" id="L25">        return (r, cq, cb) -&gt; cb.equal(cb.lower(r.get(&quot;locationState&quot;)), state.toLowerCase());</span>
+    }
+
+    public static Specification&lt;Item&gt; hasOwner(Long ownerId) {
+<span class="pc bpc" id="L29" title="1 of 2 branches missed.">        if (ownerId == null) return Specification.where(null);</span>
+<span class="nc" id="L30">        return (r, cq, cb) -&gt; cb.equal(r.get(&quot;owner&quot;).get(&quot;id&quot;), ownerId);</span>
+    }
+
+    public static Specification&lt;Item&gt; hasVisibility(Visibility v) {
+<span class="pc bpc" id="L34" title="1 of 2 branches missed.">        if (v == null) return Specification.where(null);</span>
+<span class="nc" id="L35">        return (r, cq, cb) -&gt; cb.equal(r.get(&quot;visibility&quot;), v);</span>
+    }
+
+    public static Specification&lt;Item&gt; hasYear(Integer y) {
+<span class="pc bpc" id="L39" title="1 of 2 branches missed.">        if (y == null) return Specification.where(null);</span>
+<span class="nc" id="L40">        return (r, cq, cb) -&gt; cb.equal(r.get(&quot;year&quot;), y);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

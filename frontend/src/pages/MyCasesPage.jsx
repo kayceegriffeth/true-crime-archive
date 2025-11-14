@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+// src/pages/MyCasesPage.jsx
+import React, { useState } from "react";
 
 export default function MyCasesPage() {
   const [favorites, setFavorites] = useState(() => {
@@ -13,7 +14,14 @@ export default function MyCasesPage() {
   };
 
   if (favorites.length === 0) {
-    return <p className="text-center mt-5 text-secondary">No saved cases yet.</p>;
+    return (
+      <div className="my-cases-page">
+        <h1 className="page-title">My Cases</h1>
+        <p className="text-center mt-5 text-secondary">
+          No saved cases yet. Add some from the Case Database.
+        </p>
+      </div>
+    );
   }
 
   return (
@@ -30,11 +38,14 @@ export default function MyCasesPage() {
         </div>
 
         {favorites.map((item) => {
-          const location = item.locationCity && item.locationState
-            ? `${item.locationCity}, ${item.locationState}`
-            : item.locationCity || item.locationState || "—";
+          const location =
+            item.locationCity && item.locationState
+              ? `${item.locationCity}, ${item.locationState}`
+              : item.locationCity || item.locationState || "—";
 
-          const wikiUrl = `https://en.wikipedia.org/wiki/Special:Search?search=${encodeURIComponent(item.title)}`;
+          const wikiUrl = `https://en.wikipedia.org/wiki/Special:Search?search=${encodeURIComponent(
+            item.title
+          )}`;
 
           return (
             <div key={item.id} className="my-case-row">
@@ -53,7 +64,9 @@ export default function MyCasesPage() {
               <div>{location}</div>
               <div>{item.year || "—"}</div>
               <div>
-                <span className={`status-badge status-${(item.status || "").toLowerCase()}`}>
+                <span
+                  className={`status-badge status-${(item.status || "").toLowerCase()}`}
+                >
                   {(item.status || "UNKNOWN").toUpperCase()}
                 </span>
               </div>

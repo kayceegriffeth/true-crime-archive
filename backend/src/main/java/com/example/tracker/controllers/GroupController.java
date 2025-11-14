@@ -1,12 +1,12 @@
 package com.example.tracker.controllers;
 
-import com.example.tracker.models.*;
-import com.example.tracker.repositories.GroupItemRepository;
-import com.example.tracker.repositories.GroupRepository;
-import com.example.tracker.repositories.ItemRepository;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
+import com.example.tracker.dao.GroupDao;
+import com.example.tracker.models.Item;
+import com.example.tracker.models.Visibility;
+import com.example.tracker.services.GroupService;
+
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.PageRequest;
 
 import java.util.List;
 
@@ -15,80 +15,64 @@ import java.util.List;
 @CrossOrigin(origins = {"http://localhost:3000", "http://localhost:5173"})
 public class GroupController {
 
-    private final GroupRepository groupRepo;
-    private final ItemRepository itemRepo;
-    private final GroupItemRepository groupItems;
+    private final GroupService groupService;
 
-    @PersistenceContext
-    private EntityManager em;
-
-    public GroupController(GroupRepository groupRepo, ItemRepository itemRepo, GroupItemRepository groupItems) {
-        this.groupRepo = groupRepo;
-        this.itemRepo = itemRepo;
-        this.groupItems = groupItems;
+    public GroupController(GroupService groupService) {
+        this.groupService = groupService;
     }
 
-    @GetMapping
-    public List<CaseGroups> getAllGroups() {
-        return groupRepo.findAll();
-    }
-
+    // ⬅️ Now secured by service-layer role rules
     @GetMapping("/{id}")
-    public CaseGroups getGroup(@PathVariable Long id) {
-        return groupRepo.findById(id).orElseThrow();
+    public GroupDao getGroup(@PathVariable Long id) {
+        return groupService.get(id);
     }
 
+    // ⬅️ Now secured (only PUBLIC or owned PRIVATE groups)
     @GetMapping("/{id}/items")
     public List<Item> getGroupItems(@PathVariable Long id) {
-        return groupItems.findItemsByGroupId(id);
+        // Let GroupService throw "access denied" if needed
+        groupService.get(id);
+        return groupService.getItemsByGroupId(id);
     }
 
-    @PostMapping("/{groupId}/items/{itemId}")
-    public void addItemToGroup(@PathVariable Long groupId, @PathVariable Long itemId) {
-        var group = groupRepo.findById(groupId).orElseThrow();
-        var item = itemRepo.findById(itemId).orElseThrow();
-        var link = new GroupItems(group, item);
-        groupItems.save(link);
+    // ⬅️ Paginated + filtered correctly through service layer
+    @GetMapping
+    public List<GroupDao> getAllGroups(
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) Long ownerId,
+            @RequestParam(required = false) Visibility visibility
+    ) {
+        var page = PageRequest.of(0, 500);
+        return groupService.search(q, ownerId, visibility, page).getContent();
     }
 
- 
+    // ⬅️ Creating new groups respects security defaults
     @PostMapping
-    public CaseGroups createGroup(@RequestBody CaseGroups newGroup) {
-        if (newGroup.getVisibility() == null) {
-            newGroup.setVisibility(Visibility.PRIVATE);
-        }
-        User owner = new User();
-        owner.setId(2L); // "kaycee"
-        newGroup.setOwner(owner);
-        return groupRepo.save(newGroup);
+    public GroupDao create(@RequestBody GroupDao newGroup) {
+        return groupService.create(newGroup);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteGroup(@PathVariable Long id) {
-        var group = groupRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Collection not found with id: " + id));
-        groupItems.deleteLinksByGroupId(id);
-        groupRepo.delete(group);
+    public void delete(@PathVariable Long id) {
+        groupService.delete(id);
     }
 
+    // ADD item to group (admin only — your service logic will handle ownership)
+    @PostMapping("/{groupId}/items/{itemId}")
+    public void addItem(@PathVariable Long groupId, @PathVariable Long itemId) {
+        // Let service check if allowed
+        groupService.get(groupId);
+        groupService.addItemToGroup(groupId, itemId);
+    }
+
+    // Basic search endpoint — now uses secure service method
     @GetMapping("/search")
-    public List<CaseGroups> searchGroups(
+    public List<GroupDao> search(
             @RequestParam(required = false) String keyword,
             @RequestParam(defaultValue = "name") String sortBy,
             @RequestParam(defaultValue = "asc") String order
     ) {
-        String jpql = "SELECT g FROM CaseGroups g WHERE 1=1";
-
-        if (keyword != null && !keyword.isEmpty()) {
-            jpql += " AND (LOWER(g.name) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
-                    "OR LOWER(g.description) LIKE LOWER(CONCAT('%', :keyword, '%')))";
-        }
-
-        jpql += " ORDER BY g." + sortBy + ("desc".equalsIgnoreCase(order) ? " DESC" : " ASC");
-
-        var query = em.createQuery(jpql, CaseGroups.class);
-        if (keyword != null && !keyword.isEmpty()) query.setParameter("keyword", keyword);
-
-        return query.getResultList();
+        var page = PageRequest.of(0, 500);
+        return groupService.search(keyword, null, null, page).getContent();
     }
 }

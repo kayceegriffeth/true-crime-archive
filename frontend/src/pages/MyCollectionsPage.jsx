@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useUserRole } from "../UserRoleContext";
 
 export default function MyCollectionsPage() {
+  const { role } = useUserRole();
+
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -15,65 +18,74 @@ export default function MyCollectionsPage() {
     visibility: "PRIVATE",
   });
 
-  async function fetchGroups() {
+  const fetchGroups = async () => {
     try {
       setLoading(true);
-      const params = new URLSearchParams({
-        keyword: searchTerm,
-        sortBy: sortField,
-        order: sortOrder,
-      });
-      const response = await fetch(`http://localhost:8080/api/groups/search?${params}`);
-      if (!response.ok) throw new Error("Network response was not ok");
+
+      const params = new URLSearchParams();
+
+      // Optional search
+      if (searchTerm) params.append("q", searchTerm);
+
+      // Sorting
+      params.append("sort", sortField);
+      params.append("order", sortOrder);
+
+      // Visibility rules
+      // ADMIN → sees everything (no filter)
+      // USER → only public (backend ALSO enforces private rules for users)
+      if (role !== "ADMIN") {
+        params.append("visibility", "PUBLIC");
+      }
+
+      const endpoint = `http://localhost:8080/api/groups/search?${params.toString()}`;
+
+      const response = await fetch(endpoint);
       const data = await response.json();
+
       const content = Array.isArray(data) ? data : data.content || [];
       setGroups(content);
     } catch (err) {
-      console.error("Error fetching groups:", err);
       setError("Failed to load collections.");
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
     fetchGroups();
-  }, []);
+  }, [role]);
 
   const handleCreateGroup = async (e) => {
     e.preventDefault();
-    try {
-      const response = await fetch("http://localhost:8080/api/groups", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...newGroup,
-          visibility: newGroup.visibility.toUpperCase(),
-        }),
-      });
-      if (!response.ok) throw new Error("Failed to create collection");
+
+    const response = await fetch("http://localhost:8080/api/groups", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ...newGroup,
+        visibility: newGroup.visibility.toUpperCase(),
+      }),
+    });
+
+    if (response.ok) {
       alert("New collection created!");
       setShowForm(false);
       setNewGroup({ name: "", description: "", visibility: "PRIVATE" });
-      await fetchGroups();
-    } catch (err) {
-      console.error("Error creating collection:", err);
-      alert("Failed to create collection.");
+      fetchGroups();
     }
   };
 
   const handleDeleteGroup = async (id, name) => {
     if (!window.confirm(`Delete "${name}"? This cannot be undone.`)) return;
-    try {
-      const response = await fetch(`http://localhost:8080/api/groups/${id}`, {
-        method: "DELETE",
-      });
-      if (!response.ok) throw new Error(`Failed to delete collection`);
-      alert(`"${name}" deleted successfully.`);
+
+    const response = await fetch(`http://localhost:8080/api/groups/${id}`, {
+      method: "DELETE",
+    });
+
+    if (response.ok) {
+      alert(`"${name}" deleted.`);
       setGroups((prev) => prev.filter((g) => g.id !== id));
-    } catch (err) {
-      console.error("Error deleting collection:", err);
-      alert("Something went wrong deleting this collection.");
     }
   };
 
@@ -81,47 +93,50 @@ export default function MyCollectionsPage() {
     <div className="database-page">
       <h1 className="page-title">Collections</h1>
 
-      {/* 🔍 Search + Sort Controls */}
-      <div style={{ textAlign: "center", marginBottom: "1rem" }}>
+      {/* Search + sort */}
+      <div className="filter-panel">
         <input
           type="text"
           placeholder="Search collections..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          style={{ marginRight: "10px" }}
         />
+
         <select
           value={sortField}
           onChange={(e) => setSortField(e.target.value)}
-          style={{ marginRight: "10px" }}
         >
           <option value="name">Name</option>
           <option value="createdAt">Created</option>
         </select>
-        <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value)}>
+
+        <select
+          value={sortOrder}
+          onChange={(e) => setSortOrder(e.target.value)}
+        >
           <option value="asc">Ascending</option>
           <option value="desc">Descending</option>
         </select>
-        <button
-          onClick={fetchGroups}
-          className="btn btn-sm btn-outline-light"
-          style={{ marginLeft: "10px" }}
-        >
+
+        <button className="btn-apply" onClick={fetchGroups}>
           Apply
         </button>
       </div>
 
-      {/* New Collection Form */}
-      <div className="collections-header text-center mb-4">
-        <button
-          className="btn btn-outline-danger"
-          onClick={() => setShowForm(!showForm)}
-        >
-          {showForm ? "Cancel" : "+ New Collection"}
-        </button>
-      </div>
+      {/* Create button — ADMIN ONLY */}
+      {role === "ADMIN" && (
+        <div className="collections-header text-center mt-4 mb-4">
+          <button
+            className="btn btn-outline-danger"
+            onClick={() => setShowForm(!showForm)}
+          >
+            {showForm ? "Cancel" : "+ New Collection"}
+          </button>
+        </div>
+      )}
 
-      {showForm && (
+      {/* Form */}
+      {showForm && role === "ADMIN" && (
         <form
           onSubmit={handleCreateGroup}
           className="card p-4 mb-5 mx-auto"
@@ -130,13 +145,15 @@ export default function MyCollectionsPage() {
           <div className="mb-3">
             <label className="form-label fw-semibold">Name</label>
             <input
-              type="text"
-              className="form-control"
               required
+              className="form-control"
               value={newGroup.name}
-              onChange={(e) => setNewGroup({ ...newGroup, name: e.target.value })}
+              onChange={(e) =>
+                setNewGroup({ ...newGroup, name: e.target.value })
+              }
             />
           </div>
+
           <div className="mb-3">
             <label className="form-label fw-semibold">Description</label>
             <textarea
@@ -147,6 +164,7 @@ export default function MyCollectionsPage() {
               }
             />
           </div>
+
           <div className="mb-3">
             <label className="form-label fw-semibold">Visibility</label>
             <select
@@ -160,36 +178,50 @@ export default function MyCollectionsPage() {
               <option value="PUBLIC">Public</option>
             </select>
           </div>
-          <button type="submit" className="btn btn-danger w-100">
-            Create Collection
-          </button>
+
+          <button className="btn btn-danger w-100">Create Collection</button>
         </form>
       )}
 
-      {/* Collection List */}
-      {loading ? (
-        <p className="text-center mt-5">Loading collections...</p>
-      ) : error ? (
-        <p className="text-center text-danger mt-5">{error}</p>
-      ) : groups.length === 0 ? (
-        <p className="text-center text-secondary mt-5">No collections found.</p>
+        {/* List */}
+      {groups.length === 0 ? (
+        <p className="text-center text-secondary">No collections found.</p>
       ) : (
         <div className="collection-grid">
-          {groups.map((g) => (
+          {(role === "ADMIN"
+            ? groups
+            : groups.filter((g) => g.visibility === "PUBLIC")
+          ).map((g) => (
             <div key={g.id} className="collection-card">
               <div className="collection-card-body">
-                <h5>{g.name}</h5>
+                <h5>
+                  {g.name}
+                  <span
+                    className={`badge ms-2 ${
+                      g.visibility === "PUBLIC"
+                        ? "bg-success"
+                        : "bg-secondary"
+                    }`}
+                  >
+                    {g.visibility}
+                  </span>
+                </h5>
+
                 <p>{g.description || "No description provided."}</p>
+
                 <div className="collection-card-actions">
                   <Link to={`/collections/${g.id}`}>
                     <button className="btn-view">View →</button>
                   </Link>
-                  <button
-                    className="btn-delete"
-                    onClick={() => handleDeleteGroup(g.id, g.name)}
-                  >
-                    Delete
-                  </button>
+
+                  {role === "ADMIN" && (
+                    <button
+                      className="btn-delete"
+                      onClick={() => handleDeleteGroup(g.id, g.name)}
+                    >
+                      Delete
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
