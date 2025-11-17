@@ -1,43 +1,59 @@
-🧤 True Crime Archive
------------------------
-True Crime Archive is a full-stack web app that lets users explore, organize, and analyze true-crime cases.
-It combines a Java Spring Boot backend, a React frontend, and a MySQL database to create a secure, interactive archive where users can build and browse case collections.
+True Crime Archive
+
+True Crime Archive is a full-stack web application that allows users to explore, organize, and analyze true-crime cases. Users can browse public cases, build personal or shared collections, and manage visibility settings — all backed by secure role-based authentication.
 
 Author: Kaycee Griffeth
-LaunchCode FlexPath | Full-Stack Java + React + MySQL
+Program: LaunchCode FlexPath — Full-Stack Java + Spring Boot + React + MySQL
 
 ⚙️ Tech Stack
-- Frontend: React (Vite), React Router, Bootstrap 5
-- Backend: Java 17, Spring Boot 3, Spring Security, JPA/Hibernate
-- Database: MySQL
-- Testing: Jest + React Testing Library, JUnit
+Frontend
+-React (Vite)
+-React Router
+-Bootstrap 5
+-Jest + React Testing Library
+
+Backend
+-Java 17
+-Spring Boot 3
+-Spring Security (Role-based access)
+-JPA / Hibernate
+-JUnit + Jacoco
+
+Database
+-MySQL 8
+--SQL schema + seed scripts included
 
 ✨ Key Features
-- Create and manage crime case entries
-- Build personal or public collections (e.g., Cold Cases, Missing Persons)
-- Search and sort through the case archive
-- Secure login with role-based access
-- Fully responsive user interface
-----------------------------------------------------------------------------
-🚀 Run Locally
-# Backend
+🔍 Browse crime case database with search + sorting
+📁 Create personal or public collections
+🛡️ Secure login with roles: User + Admin
+➕ Add, edit, delete items and groups
+🌐 Public vs private visibility controls
+📱 Responsive frontend UI
+🔗 Integrated REST API with React
+🚀 Local Setup
+
+[[Backend]]
 cd backend
 mvn spring-boot:run
 
-# Frontend
+[[Frontend]]
 cd frontend
 npm install
 npm run dev
 
-Visit http://localhost:3000
----------------------------------------------------------------------------
-🧪 Testing
-npm test -- --coverage   # frontend tests
-mvn test                 # backend tests
+Then open:
+👉 http://localhost:3000
 
-🧠 Highlights
-- Demonstrates full CRUD and authentication workflows
-- Integrates REST APIs with React UI
-- Showcases testing, deployment readiness, and modern styling
+🧪 Running Tests
+[[Frontend]]
+npm test -- --coverage
+[[Backend]]
+mvn test
 
-© 2025 Kaycee Griffeth · Built with 💻 + 🔍 for LaunchCode FlexPath
+🧠 Project Highlights
+-Demonstrates full CRUD workflow across items and collections
+-Uses Spring Security for authentication + authorization
+-Implements MySQL schema with foreign keys and seed data
+-Strong React component structure + routing
+-Realistic full-stack integration (Java API ↔ React UI)
