@@ -12,80 +12,110 @@ export default function MyCollectionsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortField, setSortField] = useState("name");
   const [sortOrder, setSortOrder] = useState("asc");
+
   const [newGroup, setNewGroup] = useState({
     name: "",
     description: "",
     visibility: "PRIVATE",
   });
 
+  // Small debounce so typing doesn't spam backend
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+    }, 250); // 0.25 sec delay
+
+    return () => clearTimeout(handler);
+  }, [searchTerm]);
+
   const fetchGroups = async () => {
     try {
       setLoading(true);
 
       const params = new URLSearchParams();
+      if (debouncedSearch) params.append("q", debouncedSearch);
 
-      // Optional search
-      if (searchTerm) params.append("q", searchTerm);
+      const res = await fetch(
+        `http://localhost:8080/api/groups/search?${params.toString()}`
+      );
+      if (!res.ok) throw new Error("HTTP " + res.status);
 
-      // Sorting
-      params.append("sort", sortField);
-      params.append("order", sortOrder);
-
-      // Visibility rules
-      // ADMIN → sees everything (no filter)
-      // USER → only public (backend ALSO enforces private rules for users)
-      if (role !== "ADMIN") {
-        params.append("visibility", "PUBLIC");
-      }
-
-      const endpoint = `http://localhost:8080/api/groups/search?${params.toString()}`;
-
-      const response = await fetch(endpoint);
-      const data = await response.json();
-
+      const data = await res.json();
       const content = Array.isArray(data) ? data : data.content || [];
-      setGroups(content);
+
+      // ⭐ Client-side sorting
+      const sorted = [...content].sort((a, b) => {
+        let A = a[sortField] ? a[sortField].toString().toLowerCase() : "";
+        let B = b[sortField] ? b[sortField].toString().toLowerCase() : "";
+
+        if (A < B) return sortOrder === "asc" ? -1 : 1;
+        if (A > B) return sortOrder === "asc" ? 1 : -1;
+        return 0;
+      });
+
+      setGroups(sorted);
+      setError(null);
     } catch (err) {
+      console.error("Fetch groups failed:", err);
       setError("Failed to load collections.");
     } finally {
       setLoading(false);
     }
   };
 
+  // ⭐ Automatically refresh whenever search / sort changes
   useEffect(() => {
     fetchGroups();
-  }, [role]);
+  }, [debouncedSearch, sortField, sortOrder]);
 
   const handleCreateGroup = async (e) => {
     e.preventDefault();
 
-    const response = await fetch("http://localhost:8080/api/groups", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        ...newGroup,
-        visibility: newGroup.visibility.toUpperCase(),
-      }),
-    });
+    try {
+      const res = await fetch("http://localhost:8080/api/groups", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...newGroup,
+          visibility: newGroup.visibility.toUpperCase(),
+        }),
+      });
 
-    if (response.ok) {
+      if (!res.ok) {
+        alert("Failed to create collection: " + res.status);
+        return;
+      }
+
       alert("New collection created!");
       setShowForm(false);
       setNewGroup({ name: "", description: "", visibility: "PRIVATE" });
       fetchGroups();
+    } catch (err) {
+      console.error("Create group failed:", err);
+      alert("Create failed: " + err.message);
     }
   };
 
   const handleDeleteGroup = async (id, name) => {
     if (!window.confirm(`Delete "${name}"? This cannot be undone.`)) return;
 
-    const response = await fetch(`http://localhost:8080/api/groups/${id}`, {
-      method: "DELETE",
-    });
+    try {
+      const res = await fetch(`http://localhost:8080/api/groups/${id}`, {
+        method: "DELETE",
+      });
 
-    if (response.ok) {
+      if (!res.ok) {
+        alert("Delete failed: " + res.status);
+        return;
+      }
+
       alert(`"${name}" deleted.`);
       setGroups((prev) => prev.filter((g) => g.id !== id));
+    } catch (err) {
+      console.error("Delete group failed:", err);
+      alert("Delete failed: " + err.message);
     }
   };
 
@@ -93,7 +123,7 @@ export default function MyCollectionsPage() {
     <div className="database-page">
       <h1 className="page-title">Collections</h1>
 
-      {/* Search + sort */}
+      {/* Search + Sort (No Apply button) */}
       <div className="filter-panel">
         <input
           type="text"
@@ -117,13 +147,9 @@ export default function MyCollectionsPage() {
           <option value="asc">Ascending</option>
           <option value="desc">Descending</option>
         </select>
-
-        <button className="btn-apply" onClick={fetchGroups}>
-          Apply
-        </button>
       </div>
 
-      {/* Create button — ADMIN ONLY */}
+      {/* ADMIN: Create button */}
       {role === "ADMIN" && (
         <div className="collections-header text-center mt-4 mb-4">
           <button
@@ -135,7 +161,7 @@ export default function MyCollectionsPage() {
         </div>
       )}
 
-      {/* Form */}
+      {/* Create form */}
       {showForm && role === "ADMIN" && (
         <form
           onSubmit={handleCreateGroup}
@@ -183,50 +209,53 @@ export default function MyCollectionsPage() {
         </form>
       )}
 
-        {/* List */}
-      {groups.length === 0 ? (
-        <p className="text-center text-secondary">No collections found.</p>
-      ) : (
-        <div className="collection-grid">
-          {(role === "ADMIN"
-            ? groups
-            : groups.filter((g) => g.visibility === "PUBLIC")
-          ).map((g) => (
-            <div key={g.id} className="collection-card">
-              <div className="collection-card-body">
-                <h5>
-                  {g.name}
-                  <span
-                    className={`badge ms-2 ${
-                      g.visibility === "PUBLIC"
-                        ? "bg-success"
-                        : "bg-secondary"
-                    }`}
-                  >
-                    {g.visibility}
-                  </span>
-                </h5>
+      {loading && <p className="text-center mt-4">Loading collections…</p>}
+      {error && <p className="text-center text-danger mt-4">{error}</p>}
 
-                <p>{g.description || "No description provided."}</p>
+      {!loading && !error && (
+        <>
+          {groups.length === 0 ? (
+            <p className="text-center text-secondary">No collections found.</p>
+          ) : (
+            <div className="collection-grid">
+              {groups.map((g) => (
+                <div key={g.id} className="collection-card">
+                  <div className="collection-card-body">
+                    <h5>
+                      {g.name}
+                      <span
+                        className={`badge ms-2 ${
+                          g.visibility === "PUBLIC"
+                            ? "bg-success"
+                            : "bg-secondary"
+                        }`}
+                      >
+                        {g.visibility}
+                      </span>
+                    </h5>
 
-                <div className="collection-card-actions">
-                  <Link to={`/collections/${g.id}`}>
-                    <button className="btn-view">View →</button>
-                  </Link>
+                    <p>{g.description || "No description provided."}</p>
 
-                  {role === "ADMIN" && (
-                    <button
-                      className="btn-delete"
-                      onClick={() => handleDeleteGroup(g.id, g.name)}
-                    >
-                      Delete
-                    </button>
-                  )}
+                    <div className="collection-card-actions">
+                      <Link to={`/collections/${g.id}`}>
+                        <button className="btn-view">View →</button>
+                      </Link>
+
+                      {role === "ADMIN" && (
+                        <button
+                          className="btn-delete"
+                          onClick={() => handleDeleteGroup(g.id, g.name)}
+                        >
+                          Delete
+                        </button>
+                      )}
+                    </div>
+                  </div>
                 </div>
-              </div>
+              ))}
             </div>
-          ))}
-        </div>
+          )}
+        </>
       )}
     </div>
   );

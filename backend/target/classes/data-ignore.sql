@@ -40,6 +40,46 @@ INSERT INTO case_groups (id, name, description, visibility, owner_id, image_url,
   (30, 'Investigator''s Choice', 'A curated public list by investigator_john.', 'PUBLIC', 12, 'https://upload.wikimedia.org/wikipedia/commons/3/3b/Cold_Case_Files_logo.png', NOW(), NOW())
 ON DUPLICATE KEY UPDATE name=VALUES(name), description=VALUES(description), updated_at=NOW();
 
+-- === CORE CASES (21–46) ===
+INSERT INTO items (id, owner_id, title, description, victim_name, location_city, location_state, status, visibility, year, image_url, wiki_url, created_at, updated_at) VALUES
+  (21, 2, 'Zodiac Killer', 'Unsolved serial killer case in Northern California.', 'Various', 'San Francisco', 'CA', 'UNSOLVED', 'PUBLIC', 1969,
+   'https://upload.wikimedia.org/wikipedia/commons/3/3b/Cold_Case_Files_logo.png', 'https://en.wikipedia.org/wiki/Zodiac_Killer', NOW(), NOW()),
+  (22, 2, 'DB Cooper', 'Unidentified hijacker who parachuted from a plane with ransom money in 1971.', 'Unknown', 'Portland', 'OR', 'UNSOLVED', 'PUBLIC', 1971,
+   'https://upload.wikimedia.org/wikipedia/commons/3/3b/Cold_Case_Files_logo.png', 'https://en.wikipedia.org/wiki/D._B._Cooper', NOW(), NOW()),
+  (23, 2, 'JonBenét Ramsey', 'High-profile 1996 child homicide case from Boulder, Colorado.', 'JonBenét Ramsey', 'Boulder', 'CO', 'UNSOLVED', 'PUBLIC', 1996,
+   'https://upload.wikimedia.org/wikipedia/commons/3/3b/Cold_Case_Files_logo.png', 'https://en.wikipedia.org/wiki/JonBen%C3%A9t_Ramsey_case', NOW(), NOW()),
+  (24, 2, 'The Boy in the Box', 'Unidentified boy found dead in a box in Philadelphia in 1957.', 'Unknown', 'Philadelphia', 'PA', 'UNSOLVED', 'PUBLIC', 1957,
+   'https://upload.wikimedia.org/wikipedia/commons/3/3b/Cold_Case_Files_logo.png', 'https://en.wikipedia.org/wiki/Boy_in_the_Box_(Philadelphia)', NOW(), NOW()),
+  (25, 2, 'Jack the Ripper', 'Infamous unidentified serial killer in London''s Whitechapel district.', 'Various', 'London', 'UK', 'UNSOLVED', 'PUBLIC', 1888,
+   'https://upload.wikimedia.org/wikipedia/commons/3/3b/Cold_Case_Files_logo.png', 'https://en.wikipedia.org/wiki/Jack_the_Ripper', NOW(), NOW()),
+  (31, 2, 'Madeleine McCann', '2007 disappearance of a young girl from a holiday apartment in Portugal.', 'Madeleine McCann', 'Praia da Luz', 'Portugal', 'OPEN', 'PUBLIC', 2007,
+   'https://upload.wikimedia.org/wikipedia/commons/a/a9/Amber_Hagerman_memorial_site.jpg', 'https://en.wikipedia.org/wiki/Disappearance_of_Madeleine_McCann', NOW(), NOW()),
+  (32, 2, 'Maura Murray', 'College student who disappeared after a car crash in New Hampshire in 2004.', 'Maura Murray', 'Haverhill', 'NH', 'OPEN', 'PUBLIC', 2004,
+   'https://upload.wikimedia.org/wikipedia/commons/a/a9/Amber_Hagerman_memorial_site.jpg', 'https://en.wikipedia.org/wiki/Disappearance_of_Maura_Murray', NOW(), NOW()),
+  (33, 2, 'Brian Shaffer', 'Ohio State medical student who vanished from a Columbus bar in 2006.', 'Brian Shaffer', 'Columbus', 'OH', 'OPEN', 'PUBLIC', 2006,
+   'https://upload.wikimedia.org/wikipedia/commons/a/a9/Amber_Hagerman_memorial_site.jpg', 'https://en.wikipedia.org/wiki/Disappearance_of_Brian_Shaffer', NOW(), NOW()),
+  (34, 2, 'Tara Calico', 'New Mexico woman who disappeared while biking in 1988.', 'Tara Calico', 'Belen', 'NM', 'OPEN', 'PUBLIC', 1988,
+   'https://upload.wikimedia.org/wikipedia/commons/a/a9/Amber_Hagerman_memorial_site.jpg', 'https://en.wikipedia.org/wiki/Disappearance_of_Tara_Calico', NOW(), NOW()),
+  (35, 2, 'Etan Patz', 'Notable missing child case from 1979 New York City.', 'Etan Patz', 'New York City', 'NY', 'CLOSED', 'PUBLIC', 1979,
+   'https://upload.wikimedia.org/wikipedia/commons/a/a9/Amber_Hagerman_memorial_site.jpg', 'https://en.wikipedia.org/wiki/Disappearance_of_Etan_Patz', NOW(), NOW()),
+  (41, 2, 'Ted Bundy', 'Notorious American serial killer active in the 1970s.', 'Various', 'Seattle', 'WA', 'CLOSED', 'PUBLIC', 1978,
+   'https://upload.wikimedia.org/wikipedia/commons/4/45/Ted_Bundy_1975.jpg', 'https://en.wikipedia.org/wiki/Ted_Bundy', NOW(), NOW()),
+  (42, 2, 'Jeffrey Dahmer', 'American serial killer and sex offender who murdered numerous men and boys.', 'Various', 'Milwaukee', 'WI', 'CLOSED', 'PUBLIC', 1991,
+   'https://upload.wikimedia.org/wikipedia/commons/4/45/Ted_Bundy_1975.jpg', 'https://en.wikipedia.org/wiki/Jeffrey_Dahmer', NOW(), NOW()),
+  (43, 2, 'John Wayne Gacy', 'American serial killer and sex offender known as the Killer Clown.', 'Various', 'Chicago', 'IL', 'CLOSED', 'PUBLIC', 1978,
+   'https://upload.wikimedia.org/wikipedia/commons/4/45/Ted_Bundy_1975.jpg', 'https://en.wikipedia.org/wiki/John_Wayne_Gacy', NOW(), NOW()),
+  (44, 2, 'Richard Ramirez', 'Night Stalker serial killer active in California in the mid-1980s.', 'Various', 'Los Angeles', 'CA', 'CLOSED', 'PUBLIC', 1985,
+   'https://upload.wikimedia.org/wikipedia/commons/4/45/Ted_Bundy_1975.jpg', 'https://en.wikipedia.org/wiki/Richard_Ramirez', NOW(), NOW()),
+  (45, 2, 'Aileen Wuornos', 'American serial killer who murdered several men in Florida.', 'Various', 'Daytona Beach', 'FL', 'CLOSED', 'PUBLIC', 1990,
+   'https://upload.wikimedia.org/wikipedia/commons/4/45/Ted_Bundy_1975.jpg', 'https://en.wikipedia.org/wiki/Aileen_Wuornos', NOW(), NOW()),
+  (46, 2, 'Adnan Syed', 'Baltimore murder case of Hae Min Lee; conviction later vacated.', 'Hae Min Lee', 'Baltimore', 'MD', 'CLOSED', 'PUBLIC', 1999,
+   'https://upload.wikimedia.org/wikipedia/commons/3/3b/Cold_Case_Files_logo.png', 'https://en.wikipedia.org/wiki/Adnan_Syed', NOW(), NOW())
+ON DUPLICATE KEY UPDATE
+  description = VALUES(description),
+  image_url   = VALUES(image_url),
+  wiki_url    = VALUES(wiki_url),
+  updated_at  = NOW();
+
 -- === ITEMS (expanded real-world cases) ===
 INSERT INTO items (id, owner_id, title, description, victim_name, location_city, location_state, status, visibility, year, image_url, wiki_url, created_at, updated_at) VALUES
   (101, 3, 'Black Dahlia (Elizabeth Short)', 'Unsolved 1947 Los Angeles murder of aspiring actress Elizabeth Short.', 'Elizabeth Short', 'Los Angeles', 'CA', 'UNSOLVED', 'PUBLIC', 1947, 'https://upload.wikimedia.org/wikipedia/commons/3/3b/Cold_Case_Files_logo.png', 'https://en.wikipedia.org/wiki/Black_Dahlia', NOW(), NOW()),

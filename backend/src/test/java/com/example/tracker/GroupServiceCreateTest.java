@@ -8,7 +8,6 @@ import com.example.tracker.repositories.GroupItemRepository;
 import com.example.tracker.repositories.GroupRepository;
 import com.example.tracker.repositories.ItemRepository;
 import com.example.tracker.repositories.UserRepository;
-import com.example.tracker.services.AuthUtil;
 import com.example.tracker.services.GroupService;
 import org.junit.jupiter.api.Test;
 
@@ -20,7 +19,7 @@ import static org.mockito.Mockito.*;
 class GroupServiceCreateTest {
 
     @Test
-    void create_returnsDaoWithIdAndOwner() {
+    void create_assignsOwnerAndSavesGroup() {
 
         // --------------------------
         // Arrange (mock dependencies)
@@ -29,14 +28,14 @@ class GroupServiceCreateTest {
         GroupItemRepository groupItems = mock(GroupItemRepository.class);
         ItemRepository items = mock(ItemRepository.class);
         UserRepository users = mock(UserRepository.class);
-        AuthUtil auth = mock(AuthUtil.class);
 
-        when(auth.currentUsername()).thenReturn("kaycee");
-
+        // Mock user kaycee (default owner used in new GroupService)
         User u = new User();
         u.setId(2L);
         u.setUsername("kaycee");
-        when(users.findByUsername("kaycee")).thenReturn(Optional.of(u));
+
+        when(users.findByUsername("kaycee"))
+                .thenReturn(Optional.of(u));
 
         // Match your real GroupDao:
         GroupDao dto = new GroupDao(
@@ -61,7 +60,9 @@ class GroupServiceCreateTest {
         // --------------------------
         // Act
         // --------------------------
-        GroupService service = new GroupService(groups, groupItems, items, users, auth);
+        GroupService service =
+                new GroupService(groups, groupItems, items, users);
+
         GroupDao result = service.create(dto);
 
         // --------------------------
