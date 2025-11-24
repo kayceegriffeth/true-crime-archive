@@ -1,8 +1,2 @@
-com\example\tracker\GroupServiceCreateTest.class
-com\example\tracker\GroupServiceTest.class
-com\example\tracker\config\TestAuthConfig$1.class
-com\example\tracker\NewControllerTest.class
-com\example\tracker\RepositoryIntegrationTest.class
-com\example\tracker\ItemServiceTest.class
-com\example\tracker\config\TestAuthConfig.class
-com\example\tracker\ItemIntegrationTest.class
+com\example\tracker\ApplicationTests.class
+com\example\tracker\SimpleSmokeTest.class

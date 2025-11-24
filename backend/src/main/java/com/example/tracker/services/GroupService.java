@@ -93,7 +93,6 @@ public class GroupService {
     }
 
     public GroupDao create(GroupDao dto) {
-        // Pick a default owner: Kaycee if exists, otherwise first user in table
         var owner = users.findByUsername("kaycee")
                 .orElseGet(() -> users.findAll().stream().findFirst().orElseThrow());
 

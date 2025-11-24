@@ -25,9 +25,8 @@ public class Mappers {
             g.getId(),
             g.getName(),
             g.getDescription(),
-            g.getVisibility(),
-            g.getOwner() == null ? null : g.getOwner().getId(),
-            g.getImageUrl()
+            g.getImageUrl(),
+            g.getVisibility()
         );
     }
 }

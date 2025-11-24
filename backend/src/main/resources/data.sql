@@ -89,7 +89,7 @@ INSERT INTO users (id, username, password, role) VALUES
   (12, 'investigator_john', 'password', 'ROLE_USER')
 ON DUPLICATE KEY UPDATE username = VALUES(username);
 -- =========================================================
--- INSERT CASE GROUPS (Main categories + user collections)
+-- INSERT CASE GROUPS (user collections)
 -- =========================================================
 
 
