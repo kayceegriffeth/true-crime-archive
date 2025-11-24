@@ -1,7 +1,7 @@
 const API_BASE_URL = "http://localhost:8080/api";
 
 const authHeader = () => {
-  // Auto “login” for demo
+  // Auto login for demo
   const token = btoa(`admin:admin`); 
   return {
     Authorization: `Basic ${token}`,

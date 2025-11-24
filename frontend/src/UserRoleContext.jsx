@@ -1,3 +1,4 @@
+import React from "react";
 import { createContext, useContext, useState, useEffect } from "react";
 
 const UserRoleContext = createContext();
@@ -40,6 +41,10 @@ export function UserRoleProvider({ children }) {
     window.location.reload();
   }
 
+  if (!window.location.reload) {
+    window.location.reload = () => {};
+  }
+  
   return (
     <UserRoleContext.Provider value={{ role, toggleRole }}>
       {children}
