@@ -1,59 +1,58 @@
-True Crime Archive
-
-True Crime Archive is a full-stack web application that allows users to explore, organize, and analyze true-crime cases. Users can browse public cases, build personal or shared collections, and manage visibility settings — all backed by secure role-based authentication.
-
-Author: Kaycee Griffeth
-Program: LaunchCode FlexPath — Full-Stack Java + Spring Boot + React + MySQL
-
+True Crime Archive is a full-stack web application that lets users explore, organize, and analyze true-crime cases. It includes a Java Spring Boot backend, a React frontend, and a MySQL database with pre-loaded sample data.
+_______________________________________________________________________________________
 ⚙️ Tech Stack
 Frontend
--React (Vite)
--React Router
--Bootstrap 5
--Jest + React Testing Library
+- React (Vite)
+- React Router
+- Bootstrap 5
 
 Backend
--Java 17
--Spring Boot 3
--Spring Security (Role-based access)
--JPA / Hibernate
--JUnit + Jacoco
+- Java 17
+- Spring Boot 3
+- Spring Data JPA (Hibernate)
+- MySQL Connector/J
+- Spring Web
 
 Database
--MySQL 8
---SQL schema + seed scripts included
+- MySQL 8+
+- Automatic schema generation (Hibernate)
+- data.sql for sample data
 
+Testing
+- Jest + React Testing Library
+- JUnit
+_______________________________________________________________________________________
 ✨ Key Features
-🔍 Browse crime case database with search + sorting
-📁 Create personal or public collections
-🛡️ Secure login with roles: User + Admin
-➕ Add, edit, delete items and groups
-🌐 Public vs private visibility controls
-📱 Responsive frontend UI
-🔗 Integrated REST API with React
-🚀 Local Setup
+- Browse a database of true-crime cases
+- Explore sample collections (Cold Cases, Missing Persons, Serial Killers, etc.)
+- Create, edit, and delete personal collections
+- Add/remove cases from collections
+- Fully responsive UI
 
-[[Backend]]
-cd backend
-mvn spring-boot:run
+🛠️ How to Run the App Locally
 
-[[Frontend]]
-cd frontend
-npm install
-npm run dev
+**Backend**
+- cd backend
+- mvn install
+- mvn spring-boot:run
 
-Then open:
-👉 http://localhost:3000
+**Backend runs on:
+👉 http://localhost:8080**
 
-🧪 Running Tests
-[[Frontend]]
-npm test -- --coverage
-[[Backend]]
-mvn test
+**Frontend**
+- cd frontend
+- npm install
+- npm run dev
 
-🧠 Project Highlights
--Demonstrates full CRUD workflow across items and collections
--Uses Spring Security for authentication + authorization
--Implements MySQL schema with foreign keys and seed data
--Strong React component structure + routing
--Realistic full-stack integration (Java API ↔ React UI)
+**Frontend runs on:
+👉 http://localhost:3000**
+
+🗄️ Database Setup
+1. Install MySQL
+2. Create the database
+- CREATE DATABASE truecrime;
+3. Update credentials
+    - Modify: backend/src/main/resources/application.properties
+4. Run seed data into database:
+    - backend/src/main/resources/data.sql
+_______________________________________________________________________________________
