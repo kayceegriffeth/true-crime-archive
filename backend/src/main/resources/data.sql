@@ -1,9 +1,3 @@
--- =========================================================
--- TRUE CRIME TRACKER FULL SEED DATA (EXPANDED)
--- Replaces existing data.sql while preserving user id=2 and groups 11–13
--- Includes: +10 users, 60+ real-world cases, +10 public collections, links
--- =========================================================
-
 -- === USERS (sample) ===
 INSERT INTO users (id, username, password, role) VALUES
   (3, 'truecrimefan', 'password', 'ROLE_USER'),

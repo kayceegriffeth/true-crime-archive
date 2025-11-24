@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useUserRole } from "../UserRoleContext";
 
-// tiny helper so we can tolerate different field names
 function pick(obj, keys, fallback = "—") {
   for (const k of keys) {
     if (obj && obj[k] !== undefined && obj[k] !== null && obj[k] !== "") return obj[k];
@@ -12,7 +11,7 @@ function pick(obj, keys, fallback = "—") {
 
 export default function CollectionDetailPage() {
   const { id } = useParams();
-  const { role } = useUserRole();        // 👈 NEW: know if we're ADMIN or USER
+  const { role } = useUserRole();     
 
   const [group, setGroup] = useState(null);
   const [items, setItems] = useState([]);
@@ -49,9 +48,7 @@ export default function CollectionDetailPage() {
   if (error)   return <p className="text-center text-danger mt-5">{error}</p>;
   if (!group)  return <p className="text-center mt-5">Collection not found.</p>;
 
-  // 🔐 FRONTEND ACCESS CHECK:
-  // If this collection is PRIVATE and the viewer is not ADMIN,
-  // show an "Access denied" message instead of the table.
+
   if (role !== "ADMIN" && group.visibility === "PRIVATE") {
     return (
       <div className="my-cases-page" style={{ maxWidth: 800, margin: "0 auto" }}>

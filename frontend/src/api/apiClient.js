@@ -2,7 +2,7 @@ const API_BASE_URL = "http://localhost:8080/api";
 
 const authHeader = () => {
   // Auto “login” for demo
-  const token = btoa(`admin:admin`); // change to user:user to demo user role
+  const token = btoa(`admin:admin`); 
   return {
     Authorization: `Basic ${token}`,
     "Content-Type": "application/json",
@@ -10,7 +10,6 @@ const authHeader = () => {
 };
 
 export async function apiGet(path) {
-  // For GETs, auth is optional because backend permits GET /api/**
   const res = await fetch(`${API_BASE_URL}${path}`, { headers: authHeader() });
   if (!res.ok) throw new Error(await res.text());
   return res.json();

@@ -9,9 +9,9 @@ export function UserRoleProvider({ children }) {
     localStorage.setItem("role", role);
   }, [role]);
 
-  /** Switch to ADMIN = load admin account */
+
   function switchToAdmin() {
-    const username = "testuser";   // <- your ROLE_ADMIN user in DB
+    const username = "testuser";   
     const password = "password";
 
     localStorage.setItem("role", "ADMIN");
@@ -21,7 +21,6 @@ export function UserRoleProvider({ children }) {
     setRole("ADMIN");
   }
 
-  /** Switch to USER = clear stored credentials */
   function switchToUser() {
     localStorage.setItem("role", "USER");
     localStorage.removeItem("username");
@@ -30,7 +29,7 @@ export function UserRoleProvider({ children }) {
     setRole("USER");
   }
 
-  /** The toggle used by NavBar */
+
   function toggleRole() {
     if (role === "ADMIN") {
       switchToUser();
@@ -38,7 +37,6 @@ export function UserRoleProvider({ children }) {
       switchToAdmin();
     }
 
-    // reload so fetch calls immediately use updated credentials
     window.location.reload();
   }
 

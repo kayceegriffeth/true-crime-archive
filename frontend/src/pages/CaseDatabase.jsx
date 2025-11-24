@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useUserRole } from "../UserRoleContext";
 
 export default function CaseDatabase() {
-  const { role } = useUserRole(); // "ADMIN" or "USER"
+  const { role } = useUserRole(); 
 
   const [cases, setCases] = useState([]);
   const [collections, setCollections] = useState([]);
@@ -22,9 +22,7 @@ export default function CaseDatabase() {
     return saved ? JSON.parse(saved) : [];
   });
 
-  // ============================================================
-  // FETCH INITIAL CASE LIST
-  // ============================================================
+
   const fetchInitialCases = async () => {
     try {
       setLoading(true);
@@ -44,9 +42,7 @@ export default function CaseDatabase() {
     fetchInitialCases();
   }, []);
 
-  // ============================================================
-  // FETCH COLLECTIONS
-  // ============================================================
+
   useEffect(() => {
     (async () => {
       try {
@@ -60,9 +56,7 @@ export default function CaseDatabase() {
     })();
   }, []);
 
-  // ============================================================
-  // SEARCH + SORT — AUTO APPLY WITH 300ms DEBOUNCE
-  // ============================================================
+
   const runSearch = async () => {
     try {
       setLoading(true);
@@ -91,16 +85,12 @@ export default function CaseDatabase() {
     }
   };
 
-  // Trigger search whenever inputs change (debounced)
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(runSearch, 300);
     return () => clearTimeout(debounceRef.current);
   }, [searchTerm, location, sortField, sortOrder]);
 
-  // ============================================================
-  // FAVORITES (My Cases)
-  // ============================================================
   const addToMyCases = (caseItem) => {
     const updated = [...favorites, caseItem].filter(
       (v, i, a) => a.findIndex((t) => t.id === v.id) === i
@@ -110,9 +100,6 @@ export default function CaseDatabase() {
     alert(`${caseItem.title} added to My Cases!`);
   };
 
-  // ============================================================
-  // ADMIN — ADD CASE TO SELECTED COLLECTION
-  // ============================================================
   const addToCollection = async (caseItem) => {
     if (role !== "ADMIN") return alert("Only admins can add to collections.");
     if (!selectedGroup) return alert("Please select a collection first!");
@@ -131,9 +118,6 @@ export default function CaseDatabase() {
     }
   };
 
-  // ============================================================
-  // ROLE-BASED VISIBILITY FILTER
-  // ============================================================
   const visibleCases =
     role === "ADMIN"
       ? cases
@@ -142,9 +126,6 @@ export default function CaseDatabase() {
             !item.visibility || item.visibility.toUpperCase() === "PUBLIC"
         );
 
-  // ============================================================
-  // RENDER
-  // ============================================================
   if (loading)
     return <p className="text-center mt-5">Loading case database…</p>;
 
@@ -154,7 +135,6 @@ export default function CaseDatabase() {
     <div className="my-cases-page">
       <h1 className="page-title">Case Database</h1>
 
-      {/* SEARCH + SORT PANEL (no Apply button) */}
       <div className="filter-panel">
         <input
           type="text"
@@ -181,7 +161,6 @@ export default function CaseDatabase() {
         </select>
       </div>
 
-      {/* COLLECTION SELECTOR FOR ADMINS */}
       {role === "ADMIN" && (
         <div className="mt-3" style={{ textAlign: "center" }}>
           <label style={{ marginRight: "6px" }}>Add to Collection:</label>

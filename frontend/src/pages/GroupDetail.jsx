@@ -42,7 +42,6 @@ export default function GroupDetail() {
         <p className="text-muted">{group?.description}</p>
       </div>
 
-      {/* SortMenu */}
       <div className="d-flex justify-content-center mb-4">
         <SortMenu
           field={sortField}

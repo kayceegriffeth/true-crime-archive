@@ -20,7 +20,6 @@ public class GroupService {
     private final ItemRepository items;
     private final UserRepository users;
 
-    // AuthUtil is no longer used – we’re ignoring roles server-side
     public GroupService(GroupRepository groups,
                         GroupItemRepository groupItems,
                         ItemRepository items,
@@ -48,19 +47,16 @@ public class GroupService {
         return Mappers.toGroupDao(saved);
     }
 
- public void delete(Long id) {
-    // First remove any item links manually since deleteByGroupId() doesn't exist
-    var links = groupItems.findAll()
+    public void delete(Long id) {
+        var links = groupItems.findAll()
             .stream()
             .filter(gi -> gi.getGroup().getId().equals(id))
             .toList();
 
     groupItems.deleteAll(links);
 
-    // Now delete the group itself
     groups.deleteById(id);
-}
-
+    }
 
     public Page<GroupDao> search(String q, Long ownerId, Visibility visibility, Pageable pageable) {
 

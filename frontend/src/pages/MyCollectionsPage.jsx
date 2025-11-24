@@ -19,13 +19,12 @@ export default function MyCollectionsPage() {
     visibility: "PRIVATE",
   });
 
-  // Small debounce so typing doesn't spam backend
   const [debouncedSearch, setDebouncedSearch] = useState("");
 
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearch(searchTerm);
-    }, 250); // 0.25 sec delay
+    }, 250); 
 
     return () => clearTimeout(handler);
   }, [searchTerm]);
@@ -45,7 +44,6 @@ export default function MyCollectionsPage() {
       const data = await res.json();
       const content = Array.isArray(data) ? data : data.content || [];
 
-      // ⭐ Client-side sorting
       const sorted = [...content].sort((a, b) => {
         let A = a[sortField] ? a[sortField].toString().toLowerCase() : "";
         let B = b[sortField] ? b[sortField].toString().toLowerCase() : "";
@@ -65,7 +63,6 @@ export default function MyCollectionsPage() {
     }
   };
 
-  // ⭐ Automatically refresh whenever search / sort changes
   useEffect(() => {
     fetchGroups();
   }, [debouncedSearch, sortField, sortOrder]);
@@ -123,7 +120,6 @@ export default function MyCollectionsPage() {
     <div className="database-page">
       <h1 className="page-title">Collections</h1>
 
-      {/* Search + Sort (No Apply button) */}
       <div className="filter-panel">
         <input
           type="text"
@@ -149,7 +145,6 @@ export default function MyCollectionsPage() {
         </select>
       </div>
 
-      {/* ADMIN: Create button */}
       {role === "ADMIN" && (
         <div className="collections-header text-center mt-4 mb-4">
           <button
@@ -161,7 +156,6 @@ export default function MyCollectionsPage() {
         </div>
       )}
 
-      {/* Create form */}
       {showForm && role === "ADMIN" && (
         <form
           onSubmit={handleCreateGroup}

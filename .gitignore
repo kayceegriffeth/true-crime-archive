@@ -1,0 +1,31 @@
+# === GLOBAL ===
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
+
+# === IDE ===
+.vscode/
+.idea/
+
+# === BACKEND (Spring Boot) ===
+backend/target/
+backend/.mvn/
+backend/mvnw
+backend/mvnw.cmd
+
+# Ignore local MySQL scripts
+backend/src/main/resources/data-ignore.sql
+
+# === FRONTEND (React Vite) ===
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/coverage/
+
+# Local environment variables
+frontend/.env
+backend/.env
+
+# === ZIPs & Generated Files ===
+*.zip

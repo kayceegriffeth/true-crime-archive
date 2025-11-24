@@ -4,7 +4,6 @@ import { Link } from "react-router-dom";
 export default function HomePage() {
   return (
     <div className="home-page">
-      {/* HERO */}
       <section className="hero-intro">
         <h1 className="hero-title">TRUE CRIME ARCHIVE</h1>
         <p className="hero-subtitle">
@@ -24,7 +23,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* DASHBOARD */}
       <section className="dashboard-section">
         <div className="dashboard-row">
           <div className="feature-card text-center">

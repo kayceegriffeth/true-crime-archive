@@ -21,21 +21,17 @@ public class GroupController {
         this.groupService = groupService;
     }
 
-    // ⬅️ Now secured by service-layer role rules
     @GetMapping("/{id}")
     public GroupDao getGroup(@PathVariable Long id) {
         return groupService.get(id);
     }
 
-    // ⬅️ Now secured (only PUBLIC or owned PRIVATE groups)
     @GetMapping("/{id}/items")
     public List<Item> getGroupItems(@PathVariable Long id) {
-        // Let GroupService throw "access denied" if needed
         groupService.get(id);
         return groupService.getItemsByGroupId(id);
     }
 
-    // ⬅️ Paginated + filtered correctly through service layer
     @GetMapping
     public List<GroupDao> getAllGroups(
             @RequestParam(required = false) String q,
@@ -46,7 +42,6 @@ public class GroupController {
         return groupService.search(q, ownerId, visibility, page).getContent();
     }
 
-    // ⬅️ Creating new groups respects security defaults
     @PostMapping
     public GroupDao create(@RequestBody GroupDao newGroup) {
         return groupService.create(newGroup);
@@ -57,15 +52,12 @@ public class GroupController {
         groupService.delete(id);
     }
 
-    // ADD item to group (admin only — your service logic will handle ownership)
     @PostMapping("/{groupId}/items/{itemId}")
     public void addItem(@PathVariable Long groupId, @PathVariable Long itemId) {
-        // Let service check if allowed
         groupService.get(groupId);
         groupService.addItemToGroup(groupId, itemId);
     }
 
-    // Basic search endpoint — now uses secure service method
     @GetMapping("/search")
     public List<GroupDao> search(
             @RequestParam(required = false) String keyword,

@@ -65,9 +65,9 @@ public class ItemController {
     }
    
     @PostMapping
-public ResponseEntity<Item> createItem(@RequestBody Item item) {
-    Item saved = items.save(item);
-    return ResponseEntity.status(HttpStatus.CREATED).body(saved);
-}
+        public ResponseEntity<Item> createItem(@RequestBody Item item) {
+        Item saved = items.save(item);
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+    }
 
 }

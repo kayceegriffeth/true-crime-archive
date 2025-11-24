@@ -1,8 +1,3 @@
--- =========================================================
--- TRUE CRIME TRACKER DATABASE SCHEMA (FINAL CLEAN VERSION)
--- =========================================================
--- Do not include USE <dbname>; Spring Boot handles schema creation.
-
 -- === CASE GROUPS (Collections) ===
 CREATE TABLE IF NOT EXISTS case_groups (
   id          BIGINT PRIMARY KEY AUTO_INCREMENT,

@@ -1,4 +1,3 @@
-// src/pages/MyCasesPage.jsx
 import React, { useState, useMemo } from "react";
 
 export default function MyCasesPage() {
@@ -18,13 +17,10 @@ export default function MyCasesPage() {
     localStorage.setItem("myCases", JSON.stringify(updated));
   };
 
-  // ----------------------------
-  // FILTER + SORT FAVORITES
-  // ----------------------------
+
   const filteredCases = useMemo(() => {
     let list = [...favorites];
 
-    // Search by title or victim
     if (searchTerm.trim() !== "") {
       const term = searchTerm.toLowerCase();
       list = list.filter(
@@ -34,7 +30,6 @@ export default function MyCasesPage() {
       );
     }
 
-    // Filter by location (city OR state)
     if (locationFilter.trim() !== "") {
       const loc = locationFilter.toLowerCase();
       list = list.filter(
@@ -44,12 +39,10 @@ export default function MyCasesPage() {
       );
     }
 
-    // Sorting
     list.sort((a, b) => {
       let A = a[sortField] ?? "";
       let B = b[sortField] ?? "";
 
-      // Make numeric sorts work
       if (sortField === "year") {
         A = Number(A) || 0;
         B = Number(B) || 0;
@@ -66,9 +59,6 @@ export default function MyCasesPage() {
     return list;
   }, [favorites, searchTerm, locationFilter, sortField, sortOrder]);
 
-  // ----------------------------
-  // RENDER
-  // ----------------------------
   if (favorites.length === 0) {
     return (
       <div className="my-cases-page">
@@ -84,7 +74,6 @@ export default function MyCasesPage() {
     <div className="my-cases-page">
       <h1 className="page-title">My Cases</h1>
 
-      {/* Filters + Sort */}
       <div className="filters" style={{ textAlign: "center", marginBottom: "1rem" }}>
         <input
           type="text"

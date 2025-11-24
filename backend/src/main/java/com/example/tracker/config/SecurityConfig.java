@@ -14,15 +14,13 @@ public class SecurityConfig {
 
         http
                 .csrf(csrf -> csrf.disable())
-                .cors(cors -> {}) // enable CORS, WebConfig handles details
+                .cors(cors -> {}) 
                 .authorizeHttpRequests(auth -> auth
-                        // Allow preflight requests through
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                        // Allow all API requests (your frontend controls role logic)
                         .anyRequest().permitAll()
                 )
-                .httpBasic(httpBasic -> {}); // still available if needed
+                .httpBasic(httpBasic -> {}); 
 
         return http.build();
     }
