@@ -18,7 +18,8 @@ function NavBar() {
   return (
     <nav className="navbar navbar-expand-lg bg-dark fixed-top px-4 py-3 shadow-sm">
       <div className="container-fluid">
-        <NavLink className="navbar-brand fw-bold text-uppercase" to="/">
+
+        <NavLink className="navbar-brand fw-bold text-uppercase text-light" to="/">
           🧤 True Crime Archive
         </NavLink>
 
@@ -39,10 +40,7 @@ function NavBar() {
             <li className="nav-item"><NavLink to="/collections" className="nav-link">Collections</NavLink></li>
           </ul>
 
-          <button
-            className="btn btn-outline-light ms-3"
-            onClick={toggleRole}
-          >
+          <button className="btn btn-outline-light ms-3" onClick={toggleRole}>
             Switch to {role === "USER" ? "Admin" : "User"}
           </button>
         </div>
@@ -57,26 +55,23 @@ export default function App() {
       <BrowserRouter>
         <NavBar />
 
-        {/* Persistent wrapper to prevent flicker */}
-        <div className="page-wrapper">
-          <main className="page-content">
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/database" element={<CaseDatabase />} />
-              <Route path="/my-cases" element={<MyCasesPage />} />
-              <Route path="/collections" element={<MyCollectionsPage />} />
-              <Route path="/collections/:id" element={<CollectionDetailPage />} />
-              <Route path="/cases/:id" element={<CaseDetailPage />} />
-            </Routes>
-          </main>
-        </div>
+        <main className="container mt-5 pt-5">
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/database" element={<CaseDatabase />} />
+            <Route path="/my-cases" element={<MyCasesPage />} />
+            <Route path="/collections" element={<MyCollectionsPage />} />
+            <Route path="/collections/:id" element={<CollectionDetailPage />} />
+            <Route path="/cases/:id" element={<CaseDetailPage />} />
+          </Routes>
+        </main>
 
-        <footer className="text-center py-4 mt-5 border-top">
+        <footer className="text-center py-4 mt-5 border-top text-light">
           <p className="mb-1">
-            © {new Date().getFullYear()} True Crime Archive · Built with 💻 + 🔍 by Kaycee Griffeth
+            © {new Date().getFullYear()} True Crime Archive · Built by Kaycee Griffeth
           </p>
           <p className="mb-0">
-            <a href="https://github.com/kayceegriffeth" target="_blank" rel="noreferrer">
+            <a href="https://github.com/kayceegriffeth" target="_blank" rel="noreferrer" className="text-light">
               View on GitHub
             </a>
           </p>
