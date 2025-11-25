@@ -1,13 +1,8 @@
--- =========================================================
---  TRUE CRIME ARCHIVE — COMPLETE DATA.SQL (PART 1)
---  DATABASE INITIALIZATION + SCHEMA + USERS
--- =========================================================
-
 -- Select the correct database
 USE truecrime;
 
 -- =========================================================
--- DROP TABLES IN CORRECT ORDER (to avoid FK constraint issues)
+-- DROP TABLES IN CORRECT ORDER
 -- =========================================================
 DROP TABLE IF EXISTS group_items;
 DROP TABLE IF EXISTS items;
@@ -26,7 +21,6 @@ CREATE TABLE IF NOT EXISTS users (
   role     VARCHAR(50)  NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-
 -- === CASE GROUPS ===
 CREATE TABLE IF NOT EXISTS case_groups (
   id          BIGINT PRIMARY KEY AUTO_INCREMENT,
@@ -38,7 +32,6 @@ CREATE TABLE IF NOT EXISTS case_groups (
   updated_at  DATETIME NULL,
   image_url   VARCHAR(500) NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
 
 -- === ITEMS ===
 CREATE TABLE IF NOT EXISTS items (
@@ -72,7 +65,6 @@ CREATE TABLE IF NOT EXISTS group_items (
   CONSTRAINT fk_gi_item  FOREIGN KEY (item_id)  REFERENCES items(id)       ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-
 -- =========================================================
 -- INSERT USERS (Sample demo accounts)
 -- =========================================================
@@ -88,12 +80,10 @@ INSERT INTO users (id, username, password, role) VALUES
   (11, 'forensicfreak', 'password', 'ROLE_USER'),
   (12, 'investigator_john', 'password', 'ROLE_USER')
 ON DUPLICATE KEY UPDATE username = VALUES(username);
+
 -- =========================================================
 -- INSERT CASE GROUPS (user collections)
 -- =========================================================
-
-
--- === Public User Collections (21–30) ===
 INSERT INTO case_groups (id, name, description, visibility, owner_id, image_url, created_at, updated_at) VALUES
   (21, 'Unsolved Legends',       'A curated public list by truecrimefan.',            'PUBLIC', 3,
    'https://upload.wikimedia.org/wikipedia/commons/3/3b/Cold_Case_Files_logo.png', NOW(), NOW()),
@@ -157,7 +147,6 @@ VALUES
    'https://en.wikipedia.org/wiki/Jack_the_Ripper', NOW(), NOW()),
 
 
-  -- Missing Persons Core List (31–35)
   (31, 2, 'Madeleine McCann',
    '2007 disappearance of a young girl from a holiday apartment in Portugal.',
    'Madeleine McCann', 'Praia da Luz', 'Portugal', 'OPEN', 'PUBLIC', 2007,
@@ -188,8 +177,6 @@ VALUES
    'https://upload.wikimedia.org/wikipedia/commons/a/a9/Amber_Hagerman_memorial_site.jpg',
    'https://en.wikipedia.org/wiki/Disappearance_of_Etan_Patz', NOW(), NOW()),
 
-
-  -- Serial Killer Core Cases (41–46)
   (41, 2, 'Ted Bundy',
    'Notorious American serial killer active in the 1970s.',
    'Various', 'Seattle', 'WA', 'CLOSED', 'PUBLIC', 1978,
@@ -225,10 +212,6 @@ VALUES
    'Hae Min Lee', 'Baltimore', 'MD', 'CLOSED', 'PUBLIC', 1999,
    'https://upload.wikimedia.org/wikipedia/commons/3/3b/Cold_Case_Files_logo.png',
    'https://en.wikipedia.org/wiki/Adnan_Syed', NOW(), NOW());
-
--- =========================================================
--- INSERT ITEMS (101–166) — EXPANDED TRUE CRIME CASE SET
--- =========================================================
 
 INSERT INTO items (id, owner_id, title, description, victim_name, location_city, location_state, status, visibility, year, image_url, wiki_url, created_at, updated_at)
 VALUES
@@ -629,35 +612,7 @@ VALUES
    'https://en.wikipedia.org/wiki/Randy_Steven_Kraft', NOW(), NOW());
    
 -- =========================================================
--- INSERT GROUP_ITEMS — MAP ITEMS TO COLLECTIONS
--- =========================================================
-
--- === Main Categories (Cold Cases, Missing Persons, Serial Killers) ===
-INSERT INTO group_items (group_id, item_id) VALUES
-  -- Cold Cases group (11)
-  (11, 101), (11, 102), (11, 103), (11, 104), (11, 105),
-  (11, 106), (11, 107), (11, 108), (11, 109), (11, 110),
-  (11, 111), (11, 112), (11, 113), (11, 114), (11, 115),
-  (11, 116), (11, 117), (11, 118), (11, 119), (11, 120),
-  (11, 121), (11, 122), (11, 123), (11, 124), (11, 125),
-  (11, 126), (11, 127), (11, 128), (11, 129),
-
-  -- Missing Persons group (12)
-  (12, 130), (12, 131), (12, 132), (12, 133), (12, 134),
-  (12, 135), (12, 136), (12, 137), (12, 138), (12, 139),
-  (12, 140), (12, 141), (12, 142), (12, 143), (12, 144),
-  (12, 145), (12, 146), (12, 147),
-
-  -- Serial Killers group (13)
-  (13, 148), (13, 149), (13, 150), (13, 151), (13, 152),
-  (13, 153), (13, 154), (13, 155), (13, 156), (13, 157),
-  (13, 158), (13, 159), (13, 160), (13, 161), (13, 162),
-  (13, 163), (13, 164), (13, 165), (13, 166)
-ON DUPLICATE KEY UPDATE group_id = group_id;
-
-
--- =========================================================
--- USER COLLECTIONS (21–30) — 5–7 items each
+-- USER COLLECTIONS (21–30) 
 -- =========================================================
 
 INSERT INTO group_items (group_id, item_id) VALUES

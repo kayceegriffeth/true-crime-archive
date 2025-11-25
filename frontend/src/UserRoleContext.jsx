@@ -1,35 +1,27 @@
-import React from "react";
-import { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 
 const UserRoleContext = createContext();
 
 export function UserRoleProvider({ children }) {
   const [role, setRole] = useState(localStorage.getItem("role") || "USER");
 
+  // USER mode = demo user with ID = 3 (truecrimefan)
+  // ADMIN mode = admin user with ID = 1 
+  const userId = role === "ADMIN" ? 1 : 3;
+
   useEffect(() => {
     localStorage.setItem("role", role);
   }, [role]);
 
-
   function switchToAdmin() {
-    const username = "testuser";   
-    const password = "password";
-
     localStorage.setItem("role", "ADMIN");
-    localStorage.setItem("username", username);
-    localStorage.setItem("password", password);
-
     setRole("ADMIN");
   }
 
   function switchToUser() {
     localStorage.setItem("role", "USER");
-    localStorage.removeItem("username");
-    localStorage.removeItem("password");
-
     setRole("USER");
   }
-
 
   function toggleRole() {
     if (role === "ADMIN") {
@@ -37,16 +29,11 @@ export function UserRoleProvider({ children }) {
     } else {
       switchToAdmin();
     }
-
     window.location.reload();
   }
 
-  if (!window.location.reload) {
-    window.location.reload = () => {};
-  }
-  
   return (
-    <UserRoleContext.Provider value={{ role, toggleRole }}>
+    <UserRoleContext.Provider value={{ role, userId, toggleRole }}>
       {children}
     </UserRoleContext.Provider>
   );

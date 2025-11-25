@@ -7,5 +7,6 @@ public record GroupDao(
         String name,
         String description,
         String imageUrl,
-        Visibility visibility
+        Visibility visibility,
+        Long ownerId
 ) {}

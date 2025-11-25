@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useUserRole } from "../UserRoleContext";
 
 export default function MyCollectionsPage() {
-  const { role } = useUserRole();
+  const { role, userId } = useUserRole();
 
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -24,8 +24,7 @@ export default function MyCollectionsPage() {
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearch(searchTerm);
-    }, 250); 
-
+    }, 250);
     return () => clearTimeout(handler);
   }, [searchTerm]);
 
@@ -44,7 +43,9 @@ export default function MyCollectionsPage() {
       const data = await res.json();
       const content = Array.isArray(data) ? data : data.content || [];
 
-      const sorted = [...content].sort((a, b) => {
+      const filtered = content;
+
+      const sorted = [...filtered].sort((a, b) => {
         let A = a[sortField] ? a[sortField].toString().toLowerCase() : "";
         let B = b[sortField] ? b[sortField].toString().toLowerCase() : "";
 
@@ -95,7 +96,12 @@ export default function MyCollectionsPage() {
     }
   };
 
-  const handleDeleteGroup = async (id, name) => {
+  const handleDeleteGroup = async (id, name, ownerId) => {
+    if (role !== "ADMIN" && ownerId !== userId) {
+      alert("You cannot delete a collection you do not own.");
+      return;
+    }
+
     if (!window.confirm(`Delete "${name}"? This cannot be undone.`)) return;
 
     try {
@@ -128,35 +134,27 @@ export default function MyCollectionsPage() {
           onChange={(e) => setSearchTerm(e.target.value)}
         />
 
-        <select
-          value={sortField}
-          onChange={(e) => setSortField(e.target.value)}
-        >
+        <select value={sortField} onChange={(e) => setSortField(e.target.value)}>
           <option value="name">Name</option>
           <option value="createdAt">Created</option>
         </select>
 
-        <select
-          value={sortOrder}
-          onChange={(e) => setSortOrder(e.target.value)}
-        >
+        <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value)}>
           <option value="asc">Ascending</option>
           <option value="desc">Descending</option>
         </select>
       </div>
 
-      {role === "ADMIN" && (
-        <div className="collections-header text-center mt-4 mb-4">
-          <button
-            className="btn btn-outline-danger"
-            onClick={() => setShowForm(!showForm)}
-          >
-            {showForm ? "Cancel" : "+ New Collection"}
-          </button>
-        </div>
-      )}
+      <div className="collections-header text-center mt-4 mb-4">
+        <button
+          className="btn btn-outline-danger"
+          onClick={() => setShowForm(!showForm)}
+        >
+          {showForm ? "Cancel" : "+ New Collection"}
+        </button>
+      </div>
 
-      {showForm && role === "ADMIN" && (
+      {showForm && (
         <form
           onSubmit={handleCreateGroup}
           className="card p-4 mb-5 mx-auto"
@@ -235,10 +233,12 @@ export default function MyCollectionsPage() {
                         <button className="btn-view">View →</button>
                       </Link>
 
-                      {role === "ADMIN" && (
+                      {(role === "ADMIN" || g.ownerId === userId) && (
                         <button
                           className="btn-delete"
-                          onClick={() => handleDeleteGroup(g.id, g.name)}
+                          onClick={() =>
+                            handleDeleteGroup(g.id, g.name, g.ownerId)
+                          }
                         >
                           Delete
                         </button>

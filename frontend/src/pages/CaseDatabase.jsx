@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useUserRole } from "../UserRoleContext";
 
 export default function CaseDatabase() {
-  const { role } = useUserRole();
+  const { role, userId } = useUserRole();
 
   const [cases, setCases] = useState([]);
   const [collections, setCollections] = useState([]);
@@ -13,43 +13,29 @@ export default function CaseDatabase() {
   const [sortField, setSortField] = useState("title");
   const [sortOrder, setSortOrder] = useState("asc");
 
-  const [initialLoading, setInitialLoading] = useState(true); // NEW
   const [error, setError] = useState(null);
   const debounceRef = useRef(null);
 
-  const [favorites, setFavorites] = useState(() => {
-    const saved = localStorage.getItem("myCases");
-    return saved ? JSON.parse(saved) : [];
-  });
-
-  const fetchInitialCases = async () => {
-    try {
-      setInitialLoading(true);
-      const res = await fetch("http://localhost:8080/api/items");
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      setCases(Array.isArray(data) ? data : data.content || []);
-    } catch (e) {
-      console.error("Fetch /api/items failed:", e);
-      setError("Unable to load case database.");
-    } finally {
-      setInitialLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchInitialCases();
+    (async () => {
+      try {
+        const res = await fetch("http://localhost:8080/api/items");
+        const data = await res.json();
+        setCases(Array.isArray(data) ? data : data.content || []);
+      } catch (e) {
+        setError("Unable to load items.");
+      }
+    })();
   }, []);
 
   useEffect(() => {
     (async () => {
       try {
         const res = await fetch("http://localhost:8080/api/groups");
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
         setCollections(Array.isArray(data) ? data : data.content || []);
       } catch (e) {
-        console.error("Fetch /api/groups failed:", e);
+        console.error("Error loading collections:", e);
       }
     })();
   }, []);
@@ -66,25 +52,22 @@ export default function CaseDatabase() {
       const res = await fetch(
         `http://localhost:8080/api/items/search?${params.toString()}`
       );
-
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
       const data = await res.json();
       setCases(Array.isArray(data) ? data : data.content || []);
-      setError(null);
     } catch (e) {
-      console.error("Search failed:", e);
-      setError("Error searching cases.");
+      setError("Search failed.");
     }
   };
-
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(runSearch, 300);
-    return () => clearTimeout(debounceRef.current);
   }, [searchTerm, location, sortField, sortOrder]);
 
+  const [favorites, setFavorites] = useState(() => {
+    const saved = localStorage.getItem("myCases");
+    return saved ? JSON.parse(saved) : [];
+  });
 
   const addToMyCases = (caseItem) => {
     const updated = [...favorites, caseItem].filter(
@@ -96,8 +79,7 @@ export default function CaseDatabase() {
   };
 
   const addToCollection = async (caseItem) => {
-    if (role !== "ADMIN") return alert("Only admins can add to collections.");
-    if (!selectedGroup) return alert("Please select a collection first!");
+    if (!selectedGroup) return alert("Please select your collection first!");
 
     try {
       const res = await fetch(
@@ -105,13 +87,20 @@ export default function CaseDatabase() {
         { method: "POST" }
       );
 
-      if (res.ok) alert(`${caseItem.title} added to collection!`);
-      else alert(`Failed: ${res.statusText}`);
+      if (res.ok) {
+        alert(`${caseItem.title} added to selected collection!`);
+      } else {
+        alert("Failed to add to collection.");
+      }
     } catch (e) {
-      console.error("Add to collection failed:", e);
       alert("Error adding to collection.");
     }
   };
+
+  const filteredCollections =
+    role === "ADMIN"
+      ? collections
+      : collections.filter((c) => c.ownerId === userId);
 
   const visibleCases =
     role === "ADMIN"
@@ -121,8 +110,7 @@ export default function CaseDatabase() {
             !item.visibility || item.visibility.toUpperCase() === "PUBLIC"
         );
 
-  if (error) return <p className="text-center text-danger mt-5">{error}</p>;
-
+  if (error) return <p className="text-danger text-center mt-5">{error}</p>;
 
   return (
     <div className="my-cases-page">
@@ -154,7 +142,7 @@ export default function CaseDatabase() {
         </select>
       </div>
 
-      {role === "ADMIN" && (
+      {(role === "USER" || role === "ADMIN") && (
         <div className="mt-3" style={{ textAlign: "center" }}>
           <label style={{ marginRight: "6px" }}>Add to Collection:</label>
           <select
@@ -162,7 +150,7 @@ export default function CaseDatabase() {
             onChange={(e) => setSelectedGroup(e.target.value)}
           >
             <option value="">-- Select --</option>
-            {collections.map((c) => (
+            {filteredCollections.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name}
               </option>
@@ -172,9 +160,7 @@ export default function CaseDatabase() {
       )}
 
       {visibleCases.length === 0 ? (
-        <p className="text-center text-secondary mt-4">
-          No cases match your filters.
-        </p>
+        <p className="text-center text-muted mt-4">No cases match your filters.</p>
       ) : (
         <div className="my-cases-list">
           <div className="my-cases-header-row">
@@ -205,7 +191,6 @@ export default function CaseDatabase() {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="link-title"
-                    style={{ color: "#ff4747", textDecoration: "none" }}
                   >
                     {item.title}
                   </a>
@@ -214,11 +199,8 @@ export default function CaseDatabase() {
                 <div>{item.victimName || "—"}</div>
                 <div>{loc}</div>
                 <div>{item.year || "—"}</div>
-
                 <div>
-                  <span
-                    className={`status-badge status-${(item.status || "").toLowerCase()}`}
-                  >
+                  <span className={`status-badge status-${item.status?.toLowerCase()}`}>
                     {(item.status || "UNKNOWN").toUpperCase()}
                   </span>
                 </div>
@@ -231,14 +213,12 @@ export default function CaseDatabase() {
                     + My Cases
                   </button>
 
-                  {role === "ADMIN" && (
-                    <button
-                      className="btn btn-sm btn-outline-danger"
-                      onClick={() => addToCollection(item)}
-                    >
-                      + Add to Collection
-                    </button>
-                  )}
+                  <button
+                    className="btn btn-sm btn-outline-danger"
+                    onClick={() => addToCollection(item)}
+                  >
+                    + Add to Collection
+                  </button>
                 </div>
               </div>
             );
