@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useUserRole } from "../UserRoleContext";
 
 export default function CaseDatabase() {
-  const { role } = useUserRole(); 
+  const { role } = useUserRole();
 
   const [cases, setCases] = useState([]);
   const [collections, setCollections] = useState([]);
@@ -13,7 +13,7 @@ export default function CaseDatabase() {
   const [sortField, setSortField] = useState("title");
   const [sortOrder, setSortOrder] = useState("asc");
 
-  const [loading, setLoading] = useState(true);
+  const [initialLoading, setInitialLoading] = useState(true); // NEW
   const [error, setError] = useState(null);
   const debounceRef = useRef(null);
 
@@ -22,10 +22,9 @@ export default function CaseDatabase() {
     return saved ? JSON.parse(saved) : [];
   });
 
-
   const fetchInitialCases = async () => {
     try {
-      setLoading(true);
+      setInitialLoading(true);
       const res = await fetch("http://localhost:8080/api/items");
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
@@ -34,14 +33,13 @@ export default function CaseDatabase() {
       console.error("Fetch /api/items failed:", e);
       setError("Unable to load case database.");
     } finally {
-      setLoading(false);
+      setInitialLoading(false);
     }
   };
 
   useEffect(() => {
     fetchInitialCases();
   }, []);
-
 
   useEffect(() => {
     (async () => {
@@ -56,11 +54,8 @@ export default function CaseDatabase() {
     })();
   }, []);
 
-
   const runSearch = async () => {
     try {
-      setLoading(true);
-
       const params = new URLSearchParams({
         keyword: searchTerm,
         location,
@@ -80,16 +75,16 @@ export default function CaseDatabase() {
     } catch (e) {
       console.error("Search failed:", e);
       setError("Error searching cases.");
-    } finally {
-      setLoading(false);
     }
   };
+
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(runSearch, 300);
     return () => clearTimeout(debounceRef.current);
   }, [searchTerm, location, sortField, sortOrder]);
+
 
   const addToMyCases = (caseItem) => {
     const updated = [...favorites, caseItem].filter(
@@ -111,7 +106,7 @@ export default function CaseDatabase() {
       );
 
       if (res.ok) alert(`${caseItem.title} added to collection!`);
-      else alert(`Failed to add: ${res.statusText}`);
+      else alert(`Failed: ${res.statusText}`);
     } catch (e) {
       console.error("Add to collection failed:", e);
       alert("Error adding to collection.");
@@ -126,10 +121,8 @@ export default function CaseDatabase() {
             !item.visibility || item.visibility.toUpperCase() === "PUBLIC"
         );
 
-  if (loading)
-    return <p className="text-center mt-5">Loading case database…</p>;
-
   if (error) return <p className="text-center text-danger mt-5">{error}</p>;
+
 
   return (
     <div className="my-cases-page">

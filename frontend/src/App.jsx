@@ -18,7 +18,6 @@ function NavBar() {
   return (
     <nav className="navbar navbar-expand-lg bg-dark fixed-top px-4 py-3 shadow-sm">
       <div className="container-fluid">
-
         <NavLink className="navbar-brand fw-bold text-uppercase" to="/">
           🧤 True Crime Archive
         </NavLink>
@@ -56,19 +55,21 @@ export default function App() {
   return (
     <UserRoleProvider>
       <BrowserRouter>
-
         <NavBar />
 
-        <main className="page-container" style={{ marginTop: "100px" }}>
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/database" element={<CaseDatabase />} />
-            <Route path="/my-cases" element={<MyCasesPage />} />
-            <Route path="/collections" element={<MyCollectionsPage />} />
-            <Route path="/collections/:id" element={<CollectionDetailPage />} />
-            <Route path="/cases/:id" element={<CaseDetailPage />} />
-          </Routes>
-        </main>
+        {/* Persistent wrapper to prevent flicker */}
+        <div className="page-wrapper">
+          <main className="page-content">
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/database" element={<CaseDatabase />} />
+              <Route path="/my-cases" element={<MyCasesPage />} />
+              <Route path="/collections" element={<MyCollectionsPage />} />
+              <Route path="/collections/:id" element={<CollectionDetailPage />} />
+              <Route path="/cases/:id" element={<CaseDetailPage />} />
+            </Routes>
+          </main>
+        </div>
 
         <footer className="text-center py-4 mt-5 border-top">
           <p className="mb-1">
@@ -80,7 +81,6 @@ export default function App() {
             </a>
           </p>
         </footer>
-
       </BrowserRouter>
     </UserRoleProvider>
   );

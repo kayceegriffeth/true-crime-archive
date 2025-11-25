@@ -34,7 +34,7 @@ export default function MyCollectionsPage() {
       setLoading(true);
 
       const params = new URLSearchParams();
-      if (debouncedSearch) params.append("q", debouncedSearch);
+      if (debouncedSearch) params.append("keyword", debouncedSearch);
 
       const res = await fetch(
         `http://localhost:8080/api/groups/search?${params.toString()}`
