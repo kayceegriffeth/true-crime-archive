@@ -1,4 +1,4 @@
-True Crime Archive is a full-stack web application that lets users explore and organize true-crime cases. It includes a Java Spring Boot backend, a React frontend, and a MySQL database with pre-loaded sample data.
+True Crime Archive is a full-stack web application that lets users explore and organize true-crime cases. It includes a Java Spring Boot backend, a React frontend, and a MySQL database populated automatically through a single data.sql file. This project demonstrates full-stack development, REST API design, database modeling, role-based UI behavior, and automated testing on both the frontend and backend.
 _______________________________________________________________________________________
 ⚙️ Tech Stack
 Frontend
@@ -10,12 +10,11 @@ Backend
 - Java 17
 - Spring Boot 3
 - Spring Data JPA (Hibernate)
-- MySQL Connector/J
 - Spring Web
 
 Database
 - MySQL 8+
-- data.sql (creates tables & loads all sample data.
+- Single data.sql file (creates tables & loads all sample data.
 
 Testing
 - Jest + React Testing Library
@@ -49,7 +48,5 @@ ________________________________________________________________________________
 - Install MySQL
 - Create an empty database:
         CREATE DATABASE truecrime;
-- Update your MySQL username/password inside:
-        backend/src/main/resources/application.properties
 - Run the backend — the database is created automatically from data.sql
 _______________________________________________________________________________________
