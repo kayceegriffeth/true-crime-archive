@@ -1,14 +1,11 @@
-C:\Users\kyles\Downloads\launchcode\true-crime-tracker\backend\src\main\java\com\example\tracker\config\SecurityConfig.java
 C:\Users\kyles\Downloads\launchcode\true-crime-tracker\backend\src\main\java\com\example\tracker\config\WebConfig.java
 C:\Users\kyles\Downloads\launchcode\true-crime-tracker\backend\src\main\java\com\example\tracker\controllers\GroupController.java
 C:\Users\kyles\Downloads\launchcode\true-crime-tracker\backend\src\main\java\com\example\tracker\controllers\ItemController.java
-C:\Users\kyles\Downloads\launchcode\true-crime-tracker\backend\src\main\java\com\example\tracker\controllers\RestExceptionHandler.java
 C:\Users\kyles\Downloads\launchcode\true-crime-tracker\backend\src\main\java\com\example\tracker\dao\GroupDao.java
 C:\Users\kyles\Downloads\launchcode\true-crime-tracker\backend\src\main\java\com\example\tracker\dao\ItemDao.java
 C:\Users\kyles\Downloads\launchcode\true-crime-tracker\backend\src\main\java\com\example\tracker\dao\Mappers.java
 C:\Users\kyles\Downloads\launchcode\true-crime-tracker\backend\src\main\java\com\example\tracker\models\CaseGroups.java
 C:\Users\kyles\Downloads\launchcode\true-crime-tracker\backend\src\main\java\com\example\tracker\models\CaseStatus.java
-C:\Users\kyles\Downloads\launchcode\true-crime-tracker\backend\src\main\java\com\example\tracker\models\GroupItemId.java
 C:\Users\kyles\Downloads\launchcode\true-crime-tracker\backend\src\main\java\com\example\tracker\models\GroupItems.java
 C:\Users\kyles\Downloads\launchcode\true-crime-tracker\backend\src\main\java\com\example\tracker\models\Item.java
 C:\Users\kyles\Downloads\launchcode\true-crime-tracker\backend\src\main\java\com\example\tracker\models\Role.java
@@ -18,7 +15,6 @@ C:\Users\kyles\Downloads\launchcode\true-crime-tracker\backend\src\main\java\com
 C:\Users\kyles\Downloads\launchcode\true-crime-tracker\backend\src\main\java\com\example\tracker\repositories\GroupRepository.java
 C:\Users\kyles\Downloads\launchcode\true-crime-tracker\backend\src\main\java\com\example\tracker\repositories\ItemRepository.java
 C:\Users\kyles\Downloads\launchcode\true-crime-tracker\backend\src\main\java\com\example\tracker\repositories\UserRepository.java
-C:\Users\kyles\Downloads\launchcode\true-crime-tracker\backend\src\main\java\com\example\tracker\services\AuthUtil.java
 C:\Users\kyles\Downloads\launchcode\true-crime-tracker\backend\src\main\java\com\example\tracker\services\GroupService.java
 C:\Users\kyles\Downloads\launchcode\true-crime-tracker\backend\src\main\java\com\example\tracker\services\GroupSpecifications.java
 C:\Users\kyles\Downloads\launchcode\true-crime-tracker\backend\src\main\java\com\example\tracker\services\ItemService.java
