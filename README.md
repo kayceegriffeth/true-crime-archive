@@ -26,7 +26,6 @@ ________________________________________________________________________________
 - Browse a database of true-crime cases
 - Explore sample collections (Cold Cases, Missing Persons, Serial Killers, etc.)
 - Create, edit, and delete personal collections
-- Add/remove cases from collections
 - Fully responsive UI
 
 🛠️ How to Run the App Locally
@@ -48,11 +47,10 @@ ________________________________________________________________________________
 👉 http://localhost:3000**
 
 🗄️ Database Setup
-1. Install MySQL
-2. Create the database
-- CREATE DATABASE truecrime;
-3. Update credentials
-    - Modify: backend/src/main/resources/application.properties
-4. Run seed data into database:
-    - backend/src/main/resources/data.sql
+- Install MySQL
+- Create an empty database:
+        CREATE DATABASE truecrime;
+- Update your MySQL username/password inside:
+        backend/src/main/resources/application.properties
+Run the backend — the database is created and populated automatically from data.sql
 _______________________________________________________________________________________
